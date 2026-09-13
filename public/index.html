@@ -238,6 +238,9 @@ td.club{min-width:300px;max-width:300px;padding-right:16px}
 td .tc{display:flex;gap:8px;align-items:center;font:600 16px var(--fd);text-transform:uppercase;min-width:0}
 td .tc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 td .tc img{width:20px;height:20px;object-fit:contain}
+td button.tc{background:none;border:0;padding:4px 0;margin:-4px 0;color:inherit;cursor:pointer;text-align:left;width:100%;-webkit-tap-highlight-color:transparent}
+td button.tc:hover span,td button.tc:focus-visible span{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
+td button.tc:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
 tr:hover td{background:var(--panel2)}
 td.eu{color:var(--gold2)}
 table{min-width:1500px}
@@ -435,7 +438,7 @@ function table(rows,lg){
   const season=LG[lg].season+(LG[lg].static?' · table as of 11 Sep':(live.mode==='live'?' · live':' · snapshot'));
   return `<div class="tbl-wrap"><table><thead><tr class="grp"><th colspan="2"></th><th colspan="6" class="cur">${season}</th><th colspan="8" class="hist">All-time record</th><th colspan="5">People &amp; fixtures</th></tr><tr><th class="n">Pos</th><th>Club</th><th class="n cur">P</th><th class="n cur">W</th><th class="n cur">D</th><th class="n cur">L</th><th class="n cur">GD</th><th class="n cur pts">Pts</th><th class="n hist">Est.</th><th class="hist">Stadium</th><th class="n hist">Cap.</th><th class="n hist">Lge</th><th class="n hist">Cup</th><th class="n hist">UCL</th><th class="n hist">UEL</th><th class="n hist">UECL</th><th>Manager</th><th>Captain</th><th>Record scorer</th><th>Record apps</th><th>Next</th></tr></thead><tbody>${rows.map(c=>{
     const r=rankOf(c),n=teamLive(c).next;const home=n&&n.home_id===c.espn_id;const cs=k=>r?esc(r[k]??'—'):'—';
-    return `<tr><td class="n">${r?r.rank+(r.conf?' <small style="color:var(--mute)">'+esc(r.conf[0])+'</small>':''):'—'}</td><td class="club"><span class="tc" title="${esc(c.name)}"><img src="${c.crest}" alt=""><span>${esc(c.name)}</span></span></td><td class="n cur">${cs('p')}</td><td class="n cur">${cs('w')}</td><td class="n cur">${cs('d')}</td><td class="n cur">${cs('l')}</td><td class="n cur">${cs('gd')}</td><td class="n cur pts">${cs('pts')}</td><td class="n hist">${c.founded}</td><td class="hist">${esc(c.stadium)}</td><td class="n hist">${fmt(c.capacity)}</td><td class="n hist">${c.league_titles}</td><td class="n hist">${c.cup_wins}</td><td class="n hist ${c.ucl?'eu':''}">${c.ucl}</td><td class="n hist ${c.uel?'eu':''}">${c.uel}</td><td class="n hist ${c.uecl?'eu':''}">${c.uecl}</td><td>${esc(c.manager||'—')}</td><td>${esc(c.captain||'—')}</td><td>${c.record_scorer?esc(c.record_scorer)+' ('+fmt(c.record_scorer_goals)+')':'—'}</td><td>${c.record_apps?esc(c.record_apps)+' ('+fmt(c.record_apps_count)+')':'—'}</td><td>${n?(home?'v ':'at ')+esc(home?n.away:n.home)+' · '+esc(fmtDate(n.date)):'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
+    return `<tr><td class="n">${r?r.rank+(r.conf?' <small style="color:var(--mute)">'+esc(r.conf[0])+'</small>':''):'—'}</td><td class="club"><button class="tc" type="button" data-open="${c.espn_id}" title="${esc(c.name)} — open club card"><img src="${c.crest}" alt=""><span>${esc(c.name)}</span></button></td><td class="n cur">${cs('p')}</td><td class="n cur">${cs('w')}</td><td class="n cur">${cs('d')}</td><td class="n cur">${cs('l')}</td><td class="n cur">${cs('gd')}</td><td class="n cur pts">${cs('pts')}</td><td class="n hist">${c.founded}</td><td class="hist">${esc(c.stadium)}</td><td class="n hist">${fmt(c.capacity)}</td><td class="n hist">${c.league_titles}</td><td class="n hist">${c.cup_wins}</td><td class="n hist ${c.ucl?'eu':''}">${c.ucl}</td><td class="n hist ${c.uel?'eu':''}">${c.uel}</td><td class="n hist ${c.uecl?'eu':''}">${c.uecl}</td><td>${esc(c.manager||'—')}</td><td>${esc(c.captain||'—')}</td><td>${c.record_scorer?esc(c.record_scorer)+' ('+fmt(c.record_scorer_goals)+')':'—'}</td><td>${c.record_apps?esc(c.record_apps)+' ('+fmt(c.record_apps_count)+')':'—'}</td><td>${n?(home?'v ':'at ')+esc(home?n.away:n.home)+' · '+esc(fmtDate(n.date)):'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
 }
 function strip(){
   const oldest=[...CLUBS].sort((a,b)=>a.founded-b.founded)[0];
@@ -663,7 +666,7 @@ function openDrawer(c){
 function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('scrim').classList.remove('open');}
 document.getElementById('dclose').onclick=closeDrawer;document.getElementById('scrim').onclick=closeDrawer;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
-document.addEventListener('click',e=>{const id=e.target.closest('#main .card .ident');if(id){openDrawer(byId[id.closest('.card').dataset.id]);return;}const b=e.target.closest('.locate');if(b&&mapAPI){closeDrawer();mapAPI.focus(byId[b.dataset.loc]);}});
+document.addEventListener('click',e=>{const id=e.target.closest('#main .card .ident');if(id){openDrawer(byId[id.closest('.card').dataset.id]);return;}const tr=e.target.closest('#main [data-open]');if(tr){openDrawer(byId[tr.dataset.open]);return;}const b=e.target.closest('.locate');if(b&&mapAPI){closeDrawer();mapAPI.focus(byId[b.dataset.loc]);}});
 
 // theme
 (function(){
