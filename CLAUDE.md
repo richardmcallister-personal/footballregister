@@ -35,6 +35,17 @@ file layout and data model. This file covers how the site is run and how to work
 - Run locally with `python3 scripts/refresh.py` — it rewrites the two data files, so don't commit
   them alongside unrelated changes unless intended.
 
+## Installable app (PWA)
+
+- `public/manifest.webmanifest` + `public/icons/` and `public/apple-touch-icon.png` (from logo mark A),
+  iOS home-screen tags in `index.html`, and `public/sw.js` for offline use.
+- `sw.js` caches the page, cdnjs libraries, Google Fonts CSS, `data/*.json` and all crests/ground photos.
+  Page and data are network-first, images stale-while-revalidate; ESPN and map tiles aren't cached.
+- **Bump `VERSION` in `sw.js` whenever a library URL/version in `index.html` changes** (and update
+  `LIB_URLS` to match), or installed copies keep the old library. Content edits need no bump.
+- Offline, `index.html` picks the canvas globe (`navigator.onLine` false) since map tiles can't load.
+- `_headers` serves `sw.js` with `no-cache` so updates reach users on their next visit.
+
 ## Working rules
 
 - `git pull` before editing — the bot commits to `main` every day.
