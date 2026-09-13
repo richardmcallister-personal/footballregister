@@ -10,6 +10,8 @@
 <meta property="og:image" content="https://footballclub.wiki/og-image.png">
 <meta property="og:url" content="https://footballclub.wiki/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
 <title>footballclub.wiki</title>
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -24,7 +26,7 @@
   --pitch:#3fa36b; --live:#4cc37f; --warn:#d98c3a; --shadow:0 10px 30px rgba(0,0,0,.45);
   --land:#222a38; --land-host:#2d3748; --land-stroke:#3a4558; --grat:rgba(255,255,255,.035); --overlay:rgba(10,12,16,.82); --overlay2:rgba(10,12,16,.94);
   --mk-fill:rgba(10,12,16,.85); --mk-hover:#ffffff; --shade:10,12,16; --glow:rgba(201,163,56,.10); --scan:rgba(255,255,255,.012); --scrim:rgba(0,0,0,.35);
-  --l-eng:#e7c765; --l-esp:#e2584b; --l-ita:#4f9ee8; --l-ger:#6dbf7a; --l-fra:#c48cf2; --l-sco:#3ec8c0; --l-irl:#f08a3c; --l-swe:#f2e35a;
+  --l-eng:#e7c765; --l-esp:#e2584b; --l-ita:#4f9ee8; --l-ger:#6dbf7a; --l-fra:#c48cf2; --l-sco:#3ec8c0; --l-irl:#f08a3c; --l-swe:#f2e35a; --l-den:#ff6b81; --l-por:#7fd3a0; --l-usa:#8fb8ff;
   --ocean:#0a0e15; --ocean2:#151c29;
   --fd:"Barlow Condensed","Arial Narrow",Impact,sans-serif; --fb:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif; --fm:"IBM Plex Mono",Menlo,Consolas,monospace;
 }
@@ -34,7 +36,7 @@
   --pitch:#22784a; --live:#1e9455; --warn:#b3611a; --shadow:0 10px 30px rgba(40,35,20,.18);
   --land:#e6e2d6; --land-host:#d6d0be; --land-stroke:#b9b2a0; --grat:rgba(0,0,0,.05); --overlay:rgba(251,250,246,.88); --overlay2:rgba(251,250,246,.96);
   --mk-fill:rgba(251,250,246,.9); --mk-hover:#17191d; --shade:23,25,29; --glow:rgba(156,123,26,.12); --scan:rgba(0,0,0,.012); --scrim:rgba(30,28,20,.25);
-  --l-eng:#a8801a; --l-esp:#c4382b; --l-ita:#1f6fc4; --l-ger:#2f8a4c; --l-fra:#8a4fd1; --l-sco:#0f8f88; --l-irl:#c85e12; --l-swe:#9a8a00;
+  --l-eng:#a8801a; --l-esp:#c4382b; --l-ita:#1f6fc4; --l-ger:#2f8a4c; --l-fra:#8a4fd1; --l-sco:#0f8f88; --l-irl:#c85e12; --l-swe:#9a8a00; --l-den:#c8102e; --l-por:#1f8a4c; --l-usa:#2b5fb8;
   --ocean:#cfd9e2; --ocean2:#e8eef3;
 }
 :root[data-theme="light"] .hero img{filter:none}
@@ -107,7 +109,7 @@ select.sort{background:var(--panel);border:1px solid var(--line);border-radius:3
 .hero img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.05)}
 .hero .noimg{width:100%;height:100%;display:flex;align-items:flex-end;padding:12px;background:repeating-linear-gradient(135deg,var(--panel2) 0 10px,var(--panel) 10px 20px);color:var(--mute);font:500 11px var(--fm);letter-spacing:.1em;text-transform:uppercase}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--shade),.25),rgba(var(--shade),0) 30%,rgba(var(--shade),.85))}
-.hero .cap{position:absolute;left:12px;top:10px;z-index:1;background:var(--overlay);padding:3px 7px;border-radius:2px;max-width:calc(100% - 190px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10.5px var(--fm);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.hero .cap{position:absolute;left:12px;top:10px;z-index:1;background:var(--overlay);padding:3px 7px;border-radius:2px;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10.5px var(--fm);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
 .hero .cap b{color:var(--ink);font-weight:500}
 .hero .cap,.hero .cap b{color:#e9e4d6}
 .pos,.pos .p{--ink:#e9e4d6}
@@ -127,6 +129,7 @@ select.sort{background:var(--panel);border:1px solid var(--line);border-radius:3
 .name .est{font:400 11px var(--fm);color:var(--mute);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
 .name .est b{color:var(--ink2);font-weight:500}
 
+.honours.four{grid-template-columns:repeat(4,1fr)}
 .honours{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border-block:1px solid var(--line);margin-top:8px}
 .honours .h{background:var(--bg2);padding:7px 4px 6px;text-align:center}
 .honours .h .v{font:700 22px/1 var(--fd);color:var(--ink);font-variant-numeric:tabular-nums}
@@ -161,10 +164,13 @@ select.sort{background:var(--panel);border:1px solid var(--line);border-radius:3
 /* map */
 .mapwrap{margin-top:18px;border:1px solid var(--line);background:var(--bg2);position:relative;overflow:hidden;height:clamp(480px,72vh,860px);background-image:radial-gradient(ellipse at 50% 50%,rgba(201,163,56,.05),transparent 60%)}
 .mapwrap canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.mapwrap .ml{position:absolute;inset:0}
+.mapwrap .maplibregl-ctrl-attrib{font:400 10px var(--fm);background:var(--overlay);color:var(--mute)}.mapwrap .maplibregl-ctrl-attrib a{color:var(--ink2)}
+.mapwrap .maplibregl-ctrl-bottom-right{z-index:1}
 .mk{cursor:pointer}
 .mk circle{stroke-width:1.5;vector-effect:non-scaling-stroke;fill:var(--mk-fill);transition:opacity .15s}
 .mk.dim{opacity:.18;pointer-events:none}
-.mk.eng circle,.legend .eng{stroke:var(--l-eng);border-color:var(--l-eng)}.mk.esp circle,.legend .esp{stroke:var(--l-esp);border-color:var(--l-esp)}.mk.ita circle,.legend .ita{stroke:var(--l-ita);border-color:var(--l-ita)}.mk.ger circle,.legend .ger{stroke:var(--l-ger);border-color:var(--l-ger)}.mk.fra circle,.legend .fra{stroke:var(--l-fra);border-color:var(--l-fra)}.legend .sco{border-color:var(--l-sco)}.legend .irl{border-color:var(--l-irl)}.legend .swe{border-color:var(--l-swe)}
+.mk.eng circle,.legend .eng{stroke:var(--l-eng);border-color:var(--l-eng)}.mk.esp circle,.legend .esp{stroke:var(--l-esp);border-color:var(--l-esp)}.mk.ita circle,.legend .ita{stroke:var(--l-ita);border-color:var(--l-ita)}.mk.ger circle,.legend .ger{stroke:var(--l-ger);border-color:var(--l-ger)}.mk.fra circle,.legend .fra{stroke:var(--l-fra);border-color:var(--l-fra)}.legend .sco{border-color:var(--l-sco)}.legend .irl{border-color:var(--l-irl)}.legend .swe{border-color:var(--l-swe)}.legend .den{border-color:var(--l-den)}.legend .por{border-color:var(--l-por)}.legend .usa{border-color:var(--l-usa)}
 .mk:hover circle,.mk.on circle{fill:var(--mk-hover)}
 .mk text{font:600 11px var(--fd);fill:var(--ink);letter-spacing:.04em;text-transform:uppercase;paint-order:stroke;stroke:var(--bg2);stroke-width:3px;pointer-events:none}
 .maphud{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
@@ -188,7 +194,7 @@ select.sort{background:var(--panel);border:1px solid var(--line);border-radius:3
 .drawer .close button{background:none;border:1px solid var(--line2);border-radius:3px;color:var(--ink2);padding:3px 9px;cursor:pointer;font:500 11px var(--fm)}
 .scrim{position:fixed;inset:0;z-index:19;background:var(--scrim);display:none}
 .scrim.open{display:block}
-.card .locate{position:absolute;right:10px;bottom:6px;background:none;border:0;color:var(--mute);cursor:pointer;font:500 10px var(--fm);letter-spacing:.06em;text-transform:uppercase;padding:2px 4px}
+.card .locate{background:none;border:0;color:var(--mute);cursor:pointer;font:400 10px var(--fm);letter-spacing:.04em;text-transform:uppercase;padding:0}
 .card .locate:hover{color:var(--gold2)}
 
 
@@ -254,7 +260,7 @@ footer b{color:var(--ink2);font-weight:500}
 <header class="top">
   <div class="brand">
     <div class="lockup"><svg class="logo" viewBox="0 0 120 120" width="64" height="64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="5.4" stroke-linecap="round"><circle cx="60" cy="60" r="50.4"/><ellipse cx="60" cy="60" rx="22.68" ry="50.4"/><path d="M9.60 60 H110.40"/><path d="M16.15 34.80 Q60 23.71 103.85 34.80"/><path d="M16.15 85.20 Q60 96.29 103.85 85.20"/></g><polygon points="60.00,40.85 78.21,54.08 71.26,75.49 48.74,75.49 41.79,54.08" fill="var(--gold)"/></svg><h1>footballclub<span>.wiki</span></h1></div>
-    <div class="sub" id="subline"><b>Every club. Every ground.</b> 134 clubs · 8 leagues · 8 countries</div>
+    <div class="sub" id="subline"><b>Every club. Every ground.</b> 194 clubs · 11 leagues · Europe &amp; North America</div>
   </div>
   <div class="status" id="status" aria-live="polite">
     <div class="row"><span class="dot" id="dot"></span><span class="k" id="feed">Initialising feed…</span></div>
@@ -293,19 +299,19 @@ footer b{color:var(--ink2);font-weight:500}
 <aside class="drawer" id="drawer" aria-label="Club detail"><div class="close"><span id="dtitle">Club</span><button id="dclose" type="button">Close</button></div><div id="dbody"></div></aside>
 
 <footer>
-  <b>Sources.</b> Historical data (founded, capacity, honours, record holders) compiled from Wikipedia club and stadium pages and official club sites, September 2026; managers and captains verified against league and club announcements for 2026-27. Standings, next fixtures and competition entries are read from ESPN's public soccer feed when the page can reach it; otherwise the embedded snapshot is shown with its date. The League of Ireland is not carried by that feed, so its table and fixtures are a researched snapshot (Wikipedia / leagueofireland.ie, 11 Sep 2026) and do not refresh. "Competitions" lists tournaments with fixtures currently scheduled, so early-round domestic cups appear once draws are made. European totals: <b>UCL</b> = European Cup + Champions League, <b>UEL</b> = UEFA Cup + Europa League (Fairs Cup excluded), <b>UECL</b> = Conference League. Stadium photographs from Wikimedia Commons (linked on each card, CC-licensed by their authors); crests are the property of the clubs.
+  <b>Sources.</b> Historical data (founded, capacity, honours, record holders) compiled from Wikipedia club and stadium pages and official club sites, September 2026; managers and captains verified against league and club announcements for 2026-27. Standings, next fixtures and competition entries are read from ESPN's public soccer feed when the page can reach it; otherwise the embedded snapshot is shown with its date. The League of Ireland is not carried by that feed, so its table and fixtures are a researched snapshot (Wikipedia / leagueofireland.ie, 11 Sep 2026) and do not refresh. "Competitions" lists tournaments with fixtures currently scheduled, so early-round domestic cups appear once draws are made. For MLS clubs the tiles show MLS Cup, Supporters' Shield, U.S. Open Cup (Canadian Championship for Canadian clubs) and CONCACAF Champions Cup wins; positions are within conference. European totals: <b>UCL</b> = European Cup + Champions League, <b>UEL</b> = UEFA Cup + Europa League (Fairs Cup excluded), <b>UECL</b> = Conference League. Stadium photographs from Wikimedia Commons (linked on each card, CC-licensed by their authors); crests are the property of the clubs.
 </footer>
 
 <script>
 function start(D){
 const LG=D.leagues, CLUBS=D.clubs, SNAP=D.snapshot;
-const ORDER=["eng.1","esp.1","ita.1","ger.1","fra.1","sco.1","irl.1","swe.1"];
+const ORDER=["eng.1","esp.1","ita.1","ger.1","fra.1","por.1","sco.1","den.1","swe.1","irl.1","usa.1"];
 const byId={}; CLUBS.forEach(c=>byId[c.espn_id]=c);
 // live state: start from snapshot
 const live={standings:{},teams:{},mode:'snapshot',at:SNAP.generated};
 for(const k in SNAP.standings) live.standings[k]=SNAP.standings[k];
 for(const k in SNAP.teams) live.teams[k]=SNAP.teams[k];
-const RELEG={ "eng.1":3,"esp.1":3,"ita.1":3,"ger.1":2,"fra.1":2,"sco.1":1,"irl.1":1,"swe.1":1 };
+const RELEG={ "eng.1":3,"esp.1":3,"ita.1":3,"ger.1":2,"fra.1":2,"sco.1":1,"irl.1":1,"swe.1":1,"den.1":1,"por.1":2,"usa.1":0 };
 const EU=/UEFA/;
 const state={league:'all',q:'',sort:'pos',view:'cards'};
 const $=s=>document.querySelector(s);
@@ -314,7 +320,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&g
 
 function rankOf(c){const t=(live.standings[c.league]||[]).find(r=>r.id===c.espn_id);return t||null;}
 function teamLive(c){return live.teams[c.espn_id]||{competitions:[],next:null};}
-function shortComp(n){return n.replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');}
+function shortComp(n){return n.replace('Danish ','').replace('Portuguese ','').replace('CONCACAF ','').replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');}
 function fmtDate(iso){const d=new Date(iso);if(isNaN(d))return '';return d.toLocaleString(undefined,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 
 function nextHTML(c){
@@ -327,9 +333,9 @@ function nextHTML(c){
 function posHTML(c){
   const r=rankOf(c); if(!r) return '';
   const size=(live.standings[c.league]||[]).length;
-  const cls=r.rank===1?'top':(r.rank>size-RELEG[c.league]?'rel':'');
+  const size2=r.conf?(live.standings[c.league]||[]).filter(x=>x.conf===r.conf).length:size;const cls=r.rank===1?'top':(RELEG[c.league]&&r.rank>size2-RELEG[c.league]?'rel':'');
   const sup=r.rank%10===1&&r.rank!==11?'st':r.rank%10===2&&r.rank!==12?'nd':r.rank%10===3&&r.rank!==13?'rd':'th';
-  return `<div class="pos ${cls}" title="${esc(LG[c.league].name)}: P${r.p} W${r.w} D${r.d} L${r.l} GD ${r.gd}"><span class="p">${r.rank}<sup>${sup}</sup></span><span>${esc(LG[c.league].name)}</span><span class="pts">${r.pts} pts · P${r.p}</span></div>`;
+  return `<div class="pos ${cls}" title="${esc(LG[c.league].name)}: P${r.p} W${r.w} D${r.d} L${r.l} GD ${r.gd}"><span class="p">${r.rank}<sup>${sup}</sup></span><span>${esc(r.conf?r.conf:LG[c.league].name)}</span><span class="pts">${r.pts} pts · P${r.p}</span></div>`;
 }
 
 const ICO={web:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',ig:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',espn:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg>'};
@@ -362,6 +368,11 @@ async function refreshRoster(c){
   }catch(e){}
   return false;
 }
+function honoursHTML(c){
+  const tile=(v,l,eu)=>`<div class="h${eu?' eu':''}"><div class="v${v?'':' z'}">${v??0}</div><div class="l">${esc(l)}</div></div>`;
+  if(c.league==='usa.1') return `<div class="honours four">${tile(c.league_titles,'MLS Cup')}${tile(c.supporters_shield,"Supp. Shield")}${tile(c.cup_wins,c.cup_name)}${tile(c.ucl,'CONCACAF',true)}</div>`;
+  return `<div class="honours">${tile(c.league_titles,LG[c.league].name)}${tile(c.cup_wins,c.cup_name)}${tile(c.ucl,'UCL',true)}${tile(c.uel,'UEL',true)}${tile(c.uecl,'UECL',true)}</div>`;
+}
 function card(c,full){
   const tl=teamLive(c);
   const comps=tl.competitions.filter(x=>x!=='Club Friendly');
@@ -372,13 +383,7 @@ function card(c,full){
     <div class="cap"><b>${esc(c.stadium)}</b> · ${fmt(c.capacity)}</div>${posHTML(c)}</div>
   <div class="ident"><div class="crest"><img src="${c.crest}" alt="" width="44" height="44"></div>
     <div class="name"><h3>${esc(c.name)}</h3><div class="est">Est. <b>${c.founded}</b> · ${esc(c.city)}</div></div></div>
-  <div class="honours">
-    <div class="h"><div class="v${c.league_titles?'':' z'}">${c.league_titles}</div><div class="l">${esc(LG[c.league].name)}</div></div>
-    <div class="h"><div class="v${c.cup_wins?'':' z'}">${c.cup_wins}</div><div class="l">${esc(c.cup_name)}</div></div>
-    <div class="h eu"><div class="v${c.ucl?'':' z'}">${c.ucl}</div><div class="l">UCL</div></div>
-    <div class="h eu"><div class="v${c.uel?'':' z'}">${c.uel}</div><div class="l">UEL</div></div>
-    <div class="h eu"><div class="v${c.uecl?'':' z'}">${c.uecl}</div><div class="l">UECL</div></div>
-  </div>
+  ${honoursHTML(c)}
   <div class="facts">
     <div class="f"><div class="k">Manager</div><div class="v">${esc(c.manager||'—')}</div></div>
     <div class="f"><div class="k">Captain</div>${c.captain?`<div class="v">${esc(c.captain)}</div>`:`<div class="v na">Not confirmed</div>`}</div>
@@ -388,7 +393,7 @@ function card(c,full){
   ${nextHTML(c)}
   <div class="comps">${comps.length?comps.map(x=>`<span class="chip ${EU.test(x)?'eu':''} ${x===LG[c.league].name?'lg':''}">${esc(shortComp(x))}</span>`).join(''):'<span class="chip">No scheduled competitions</span>'}</div>
   ${linksHTML(c)}${full?squadHTML(c):''}
-  <button class="locate" type="button" data-loc="${c.espn_id}">◎ map</button><div class="src"><span>${euTotal?euTotal+(euTotal===1?' European trophy':' European trophies'):'No European trophies'}</span><span>${c.stadium_credit?`<a href="${esc(c.stadium_credit)}" target="_blank" rel="noopener">photo · wikimedia</a>`:''}</span></div>
+  <div class="src"><span>${c.league==='usa.1'?(c.ucl?c.ucl+' CONCACAF title'+(c.ucl>1?'s':''):'No CONCACAF titles'):(euTotal?euTotal+(euTotal===1?' European trophy':' European trophies'):'No European trophies')}</span><span>${c.stadium_credit?`<a href="${esc(c.stadium_credit)}" target="_blank" rel="noopener">photo · wikimedia</a> · `:''}<button class="locate" type="button" data-loc="${c.espn_id}">◎ map</button></span></div>
 </article>`;
 }
 
@@ -399,7 +404,7 @@ function sorter(a,b){
     case 'capacity':return b.capacity-a.capacity;
     case 'titles':return b.league_titles-a.league_titles||a.name.localeCompare(b.name);
     case 'europe':return (b.ucl*3+b.uel*2+b.uecl)-(a.ucl*3+a.uel*2+a.uecl)||b.ucl-a.ucl;
-    default:{const ra=rankOf(a),rb=rankOf(b);return (ra?ra.rank:99)-(rb?rb.rank:99);}
+    default:{const ra=rankOf(a),rb=rankOf(b);const ca=(ra&&ra.conf)||'',cb=(rb&&rb.conf)||'';if(ca!==cb)return ca<cb?-1:1;return (ra?ra.rank:99)-(rb?rb.rank:99);}
   }
 }
 function filtered(){
@@ -416,14 +421,14 @@ function render(){
     const st=live.standings[lg]||[]; const leader=st[0];
     const head=`<div class="league-h"><h2>${esc(LG[lg].name)}</h2><span class="meta"><b>${rows.length}</b> clubs · ${esc(LG[lg].country)}${leader?` · leader <b>${esc(leader.name)}</b> ${leader.pts} pts`:''}</span></div>`;
     if(state.view==='table') return `<section class="league">${head}${table(rows,lg)}</section>`;
-    return `<section class="league">${head}<div class="grid">${rows.map(card).join('')}</div></section>`;
+    return `<section class="league">${head}<div class="grid">${rows.map(c=>card(c)).join('')}</div></section>`;
   }).join('');
 }
 function table(rows,lg){
   const season=LG[lg].season+(LG[lg].static?' · table as of 11 Sep':(live.mode==='live'?' · live':' · snapshot'));
   return `<div class="tbl-wrap"><table><thead><tr class="grp"><th colspan="2"></th><th colspan="6" class="cur">${season}</th><th colspan="8" class="hist">All-time record</th><th colspan="5">People &amp; fixtures</th></tr><tr><th class="n">Pos</th><th>Club</th><th class="n cur">P</th><th class="n cur">W</th><th class="n cur">D</th><th class="n cur">L</th><th class="n cur">GD</th><th class="n cur pts">Pts</th><th class="n hist">Est.</th><th class="hist">Stadium</th><th class="n hist">Cap.</th><th class="n hist">Lge</th><th class="n hist">Cup</th><th class="n hist">UCL</th><th class="n hist">UEL</th><th class="n hist">UECL</th><th>Manager</th><th>Captain</th><th>Record scorer</th><th>Record apps</th><th>Next</th></tr></thead><tbody>${rows.map(c=>{
     const r=rankOf(c),n=teamLive(c).next;const home=n&&n.home_id===c.espn_id;const cs=k=>r?esc(r[k]??'—'):'—';
-    return `<tr><td class="n">${r?r.rank:'—'}</td><td class="club"><span class="tc" title="${esc(c.name)}"><img src="${c.crest}" alt=""><span>${esc(c.name)}</span></span></td><td class="n cur">${cs('p')}</td><td class="n cur">${cs('w')}</td><td class="n cur">${cs('d')}</td><td class="n cur">${cs('l')}</td><td class="n cur">${cs('gd')}</td><td class="n cur pts">${cs('pts')}</td><td class="n hist">${c.founded}</td><td class="hist">${esc(c.stadium)}</td><td class="n hist">${fmt(c.capacity)}</td><td class="n hist">${c.league_titles}</td><td class="n hist">${c.cup_wins}</td><td class="n hist ${c.ucl?'eu':''}">${c.ucl}</td><td class="n hist ${c.uel?'eu':''}">${c.uel}</td><td class="n hist ${c.uecl?'eu':''}">${c.uecl}</td><td>${esc(c.manager||'—')}</td><td>${esc(c.captain||'—')}</td><td>${c.record_scorer?esc(c.record_scorer)+' ('+fmt(c.record_scorer_goals)+')':'—'}</td><td>${c.record_apps?esc(c.record_apps)+' ('+fmt(c.record_apps_count)+')':'—'}</td><td>${n?(home?'v ':'at ')+esc(home?n.away:n.home)+' · '+esc(fmtDate(n.date)):'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
+    return `<tr><td class="n">${r?r.rank+(r.conf?' <small style="color:var(--mute)">'+esc(r.conf[0])+'</small>':''):'—'}</td><td class="club"><span class="tc" title="${esc(c.name)}"><img src="${c.crest}" alt=""><span>${esc(c.name)}</span></span></td><td class="n cur">${cs('p')}</td><td class="n cur">${cs('w')}</td><td class="n cur">${cs('d')}</td><td class="n cur">${cs('l')}</td><td class="n cur">${cs('gd')}</td><td class="n cur pts">${cs('pts')}</td><td class="n hist">${c.founded}</td><td class="hist">${esc(c.stadium)}</td><td class="n hist">${fmt(c.capacity)}</td><td class="n hist">${c.league_titles}</td><td class="n hist">${c.cup_wins}</td><td class="n hist ${c.ucl?'eu':''}">${c.ucl}</td><td class="n hist ${c.uel?'eu':''}">${c.uel}</td><td class="n hist ${c.uecl?'eu':''}">${c.uecl}</td><td>${esc(c.manager||'—')}</td><td>${esc(c.captain||'—')}</td><td>${c.record_scorer?esc(c.record_scorer)+' ('+fmt(c.record_scorer_goals)+')':'—'}</td><td>${c.record_apps?esc(c.record_apps)+' ('+fmt(c.record_apps_count)+')':'—'}</td><td>${n?(home?'v ':'at ')+esc(home?n.away:n.home)+' · '+esc(fmtDate(n.date)):'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
 }
 function strip(){
   const oldest=[...CLUBS].sort((a,b)=>a.founded-b.founded)[0];
@@ -484,11 +489,57 @@ async function goLive(){
 }
 
 
+
+// ---- MapLibre engine (hosted site: OpenFreeMap vector tiles, globe projection) ----
+function initMapLibre(){
+  const wrap=document.getElementById('mapwrap'); const old=document.getElementById('map'); old.remove();
+  const div=document.createElement('div'); div.id='map'; div.className='ml'; wrap.prepend(div);
+  const STYLES={dark:'https://tiles.openfreemap.org/styles/dark',light:'https://tiles.openfreemap.org/styles/positron'};
+  const theme=()=>document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
+  const HOME={center:[-25,45],zoom:1.9};
+  const map=new maplibregl.Map({container:div,style:STYLES[theme()],center:HOME.center,zoom:HOME.zoom,minZoom:1,maxZoom:17,attributionControl:{compact:true},cooperativeGestures:false});
+  map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.touchPitch&&map.touchPitch.disable();
+  const tip=document.getElementById('tip');
+  const geo=()=>({type:'FeatureCollection',features:CLUBS.filter(c=>vis.has(c.espn_id)).map(c=>({type:'Feature',id:+c.espn_id,geometry:{type:'Point',coordinates:[c.lon,c.lat]},properties:{id:c.espn_id,name:c.name,league:c.league,color:cssVar('--l-'+c.league.slice(0,3)),icon:'crest-'+c.espn_id}}))});
+  const vis=new Set(CLUBS.map(c=>c.espn_id));
+  const imgs={}; const loaded=Promise.all(CLUBS.map(c=>new Promise(res=>{const im=new Image();im.onload=()=>{imgs[c.espn_id]=im;res();};im.onerror=res;im.src=c.crest;})));
+  function addLayers(){
+    if(map.getSource('clubs')) return;
+    for(const id in imgs){if(!map.hasImage('crest-'+id))map.addImage('crest-'+id,imgs[id],{pixelRatio:2});}
+    const ink=cssVar('--ink'), bg=cssVar('--bg2'), gold=cssVar('--gold');
+    map.addSource('clubs',{type:'geojson',data:geo(),cluster:true,clusterMaxZoom:8,clusterRadius:30});
+    map.addLayer({id:'clusters',type:'circle',source:'clubs',filter:['has','point_count'],paint:{'circle-color':bg,'circle-opacity':.9,'circle-stroke-color':gold,'circle-stroke-width':2,'circle-radius':['step',['get','point_count'],14,10,18,30,24]}});
+    map.addLayer({id:'cluster-count',type:'symbol',source:'clubs',filter:['has','point_count'],layout:{'text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Bold'],'text-size':12},paint:{'text-color':ink}});
+    map.addLayer({id:'club-ring',type:'circle',source:'clubs',filter:['!',['has','point_count']],paint:{'circle-color':bg,'circle-opacity':.92,'circle-stroke-color':['get','color'],'circle-stroke-width':2,'circle-radius':['interpolate',['linear'],['zoom'],2,9,8,15,14,22]}});
+    map.addLayer({id:'club-crest',type:'symbol',source:'clubs',filter:['!',['has','point_count']],layout:{'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],2,.28,8,.5,14,.8],'icon-allow-overlap':true,'icon-ignore-placement':true,'text-field':['step',['zoom'],'',7,['get','name']],'text-font':['Noto Sans Bold'],'text-size':12,'text-offset':[0,1.9],'text-anchor':'top','text-optional':true,'text-transform':'uppercase','text-letter-spacing':.05},paint:{'text-color':ink,'text-halo-color':bg,'text-halo-width':1.4}});
+    map.on('click','clusters',e=>{const f=map.queryRenderedFeatures(e.point,{layers:['clusters']})[0];map.getSource('clubs').getClusterExpansionZoom(f.properties.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:z+.5,duration:700}));});
+    for(const L of ['club-crest','club-ring']){
+      map.on('click',L,e=>{const c=byId[e.features[0].properties.id];if(!c)return;openDrawer(c);map.flyTo({center:[c.lon,c.lat],zoom:Math.max(map.getZoom(),11),speed:1.2,curve:1.5,essential:true});});
+      map.on('mouseenter',L,e=>{map.getCanvas().style.cursor='pointer';const c=byId[e.features[0].properties.id];if(!c)return;const r=rankOf(c);tip.style.display='flex';tip.innerHTML=`<img src="${c.crest}" alt=""><div><div class="n">${esc(c.name)}</div><div class="d">${esc(c.stadium)} · ${fmt(c.capacity)}${r?` · <b>${r.rank}</b> in ${esc(LG[c.league].name)}`:''}</div></div>`;});
+      map.on('mousemove',L,e=>{let x=e.point.x+16,y=e.point.y+16;const W=wrap.clientWidth,H=wrap.clientHeight;if(x+260>W)x-=280;if(y+70>H)y-=90;tip.style.left=x+'px';tip.style.top=y+'px';});
+      map.on('mouseleave',L,()=>{map.getCanvas().style.cursor='';tip.style.display='none';});
+    }
+    for(const L of ['clusters']){map.on('mouseenter',L,()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave',L,()=>map.getCanvas().style.cursor='');}
+  }
+  map.on('style.load',()=>{try{map.setProjection({type:'globe'});}catch(e){} loaded.then(addLayers);});
+  new MutationObserver(()=>{map.setStyle(STYLES[theme()]);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  document.getElementById('zin').onclick=()=>map.zoomIn({duration:300});
+  document.getElementById('zout').onclick=()=>map.zoomOut({duration:300});
+  document.getElementById('zreset').onclick=()=>map.flyTo({center:HOME.center,zoom:HOME.zoom,speed:1.2,curve:1.5,essential:true});
+  document.getElementById('legend').innerHTML=ORDER.map(l=>`<span><i class="${l.slice(0,3)}"></i>${LG[l].name}</span>`).join('');
+  document.getElementById('mapcount').textContent='drag · pinch or scroll to zoom · tap a ground';
+  mapAPI={
+    filter(ids){vis.clear();ids.forEach(i=>vis.add(i));const src=map.getSource('clubs');if(src)src.setData(geo());document.getElementById('mapcount').textContent=`${ids.length} of ${CLUBS.length} plotted · drag · pinch or scroll to zoom`;},
+    focus(c){wrap.scrollIntoView({behavior:'smooth',block:'start'});map.flyTo({center:[c.lon,c.lat],zoom:14,speed:1.1,curve:1.6,essential:true});}
+  };
+}
+
 // ---- globe ----
-const HOST=new Set(["United Kingdom","Spain","Italy","Germany","France","Ireland","Sweden"]);
+const HOST=new Set(["United Kingdom","Spain","Italy","Germany","France","Ireland","Sweden","Denmark","Portugal","United States of America","Canada"]);
 let mapAPI=null;
 function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 function initMap(){
+  if(D.engine==='maplibre'&&window.maplibregl) return initMapLibre();
   if(!window.d3||!window.topojson) return;
   const wrap=document.getElementById('mapwrap'), canvas=document.getElementById('map'), ctx=canvas.getContext('2d');
   const land=topojson.merge(D.world,D.world.objects.countries.geometries);
@@ -498,7 +549,7 @@ function initMap(){
   const sphere={type:'Sphere'};
   const proj=d3.geoOrthographic().clipAngle(90).precision(.3);
   const path=d3.geoPath(proj,ctx);
-  const HOME={rot:[-10,-50,0],k:1.0};
+  const HOME={rot:[25,-45,0],k:1.0};
   let W=0,H=0,dpr=1,base=1,k=HOME.k,rot=HOME.rot.slice(),visible=CLUBS.map(c=>c.espn_id),hover=null,active=null,auto=!matchMedia('(prefers-reduced-motion: reduce)').matches,raf=null,crests={};
   CLUBS.forEach(c=>{const im=new Image();im.src=c.crest;crests[c.espn_id]=im;});
   const vis=new Set(visible);
@@ -632,7 +683,7 @@ setTimeout(goLive,50);
   Promise.all(['data/clubs.json','data/snapshot.json','data/rosters.json','data/flags.json','data/world.json'].map(f=>fetch(base+f,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(f);return r.json();})))
   .then(([clubs,snapshot,rosters,flags,world])=>{
     clubs.clubs.forEach(c=>{c.crest=base+'img/crests/'+c.espn_id+'.png';c.stadium_img=c.has_photo?base+'img/grounds/'+c.espn_id+'.jpg':null;});
-    start({leagues:clubs.leagues,clubs:clubs.clubs,snapshot,rosters,flags,world});
+    start({leagues:clubs.leagues,clubs:clubs.clubs,snapshot,rosters,flags,world,engine:window.maplibregl?'maplibre':'canvas'});
   }).catch(e=>{document.getElementById('main').innerHTML='<div class="empty">Could not load club data ('+e.message+').</div>';});
 })();
 </script>

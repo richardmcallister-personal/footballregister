@@ -1,6 +1,6 @@
 # footballclub.wiki
 
-Static site: 134 clubs across eight European leagues on an interactive globe. See README.md for the
+Static site: 194 clubs across eleven leagues in Europe and North America on an interactive globe. See README.md for the
 file layout and data model. This file covers how the site is run and how to work on it.
 
 ## Where things live

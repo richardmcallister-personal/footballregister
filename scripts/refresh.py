@@ -10,7 +10,7 @@ import json, re, sys, time, datetime, pathlib, urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PUB = ROOT / "public" / "data"
 BASE = "https://site.api.espn.com/apis"
-ESPN_LEAGUES = ["eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "sco.1", "swe.1"]
+ESPN_LEAGUES = ["eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "sco.1", "swe.1", "den.1", "por.1", "usa.1"]
 POS = {"Goalkeeper": "GK", "Defender": "DF", "Midfielder": "MF", "Forward": "FW", "Attacker": "FW"}
 
 
@@ -39,11 +39,13 @@ def main():
             print("standings unavailable, keeping previous:", lg, file=sys.stderr)
             continue
         rows = []
-        for e in d["children"][0]["standings"]["entries"]:
-            st = {s["name"]: s.get("displayValue") for s in e["stats"]}
-            rows.append({"id": e["team"]["id"], "name": e["team"]["displayName"], "rank": int(st.get("rank") or 0),
-                         "pts": st.get("points"), "p": st.get("gamesPlayed"), "w": st.get("wins"), "d": st.get("ties"),
-                         "l": st.get("losses"), "gd": st.get("pointDifferential")})
+        for ch in d["children"]:
+            conf = (ch.get("name") or "").replace(" Conference", "") if len(d["children"]) > 1 else None
+            for e in ch["standings"]["entries"]:
+                st = {s["name"]: s.get("displayValue") for s in e["stats"]}
+                rows.append({"id": e["team"]["id"], "name": e["team"]["displayName"], "rank": int(st.get("rank") or 0),
+                             "pts": st.get("points"), "p": st.get("gamesPlayed"), "w": st.get("wins"), "d": st.get("ties"),
+                             "l": st.get("losses"), "gd": st.get("pointDifferential"), "conf": conf or None})
         snap["standings"][lg] = rows
 
     for c in clubs:
