@@ -8,12 +8,14 @@ standings and next fixtures.
 
 ```
 public/            the site — deploy this folder as-is
-  index.html       page, styles and script (D3 + TopoJSON from cdnjs)
+  index.html       page, styles and script. Map: MapLibre GL globe on OpenFreeMap vector tiles
+                   (dark / positron styles); falls back to a D3 + TopoJSON canvas globe if
+                   MapLibre doesn't load. Libraries from cdnjs, no API keys.
   data/clubs.json  static club data, links, coordinates
   data/snapshot.json  standings, next fixtures, competitions (refreshed daily)
   data/rosters.json   squads (refreshed daily)
   data/flags.json     nationality → flag emoji
-  data/world.json     1:50m basemap (TopoJSON)
+  data/world.json     1:50m basemap (TopoJSON), used only by the canvas fallback
   img/crests/  img/grounds/
 scripts/refresh.py      re-snapshots ESPN; League of Ireland from scripts/irl_static.json
 .github/workflows/refresh.yml   runs the refresh daily and commits
