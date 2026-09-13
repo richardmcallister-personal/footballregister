@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Every club, every ground. 194 clubs across eleven leagues in Europe and North America: honours, stadiums, managers, squads, live standings and next fixtures on an interactive globe.">
+<meta name="description" content="Every club, every ground. 236 clubs across thirteen leagues in Europe and North America: honours, stadiums, managers, squads, live standings and next fixtures on an interactive globe.">
 <link rel="canonical" href="https://footballclub.wiki/">
 <meta property="og:title" content="footballclub.wiki">
-<meta property="og:description" content="Every club. Every ground. Honours, stadiums, squads, standings and fixtures for 194 clubs in Europe and North America on an interactive globe.">
+<meta property="og:description" content="Every club. Every ground. Honours, stadiums, squads, standings and fixtures for 236 clubs in Europe and North America on an interactive globe.">
 <meta property="og:image" content="https://footballclub.wiki/og-image.png">
 <meta property="og:url" content="https://footballclub.wiki/">
 <meta name="twitter:card" content="summary_large_image">
@@ -33,7 +33,7 @@
   --pitch:#3fa36b; --live:#4cc37f; --warn:#d98c3a; --shadow:0 10px 30px rgba(0,0,0,.45);
   --land:#222a38; --land-host:#2d3748; --land-stroke:#3a4558; --grat:rgba(255,255,255,.035); --overlay:rgba(10,12,16,.82); --overlay2:rgba(10,12,16,.94);
   --mk-fill:rgba(10,12,16,.85); --mk-hover:#ffffff; --shade:10,12,16; --glow:rgba(201,163,56,.10); --scan:rgba(255,255,255,.012); --scrim:rgba(0,0,0,.35);
-  --l-eng:#e7c765; --l-esp:#e2584b; --l-ita:#4f9ee8; --l-ger:#6dbf7a; --l-fra:#c48cf2; --l-sco:#3ec8c0; --l-irl:#f08a3c; --l-swe:#f2e35a; --l-den:#ff6b81; --l-por:#7fd3a0; --l-usa:#8fb8ff;
+  --l-eng:#e7c765; --l-esp:#e2584b; --l-ita:#4f9ee8; --l-ger:#6dbf7a; --l-fra:#c48cf2; --l-sco:#3ec8c0; --l-irl:#f08a3c; --l-swe:#f2e35a; --l-den:#ff6b81; --l-por:#7fd3a0; --l-usa:#8fb8ff; --l-efl:#cdb98a; --l-tur:#e070d6;
   --ocean:#0a0e15; --ocean2:#151c29;
   --fd:"Barlow Condensed","Arial Narrow",Impact,sans-serif; --fb:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif; --fm:"IBM Plex Mono",Menlo,Consolas,monospace;
 }
@@ -43,7 +43,7 @@
   --pitch:#22784a; --live:#1e9455; --warn:#b3611a; --shadow:0 10px 30px rgba(40,35,20,.18);
   --land:#e6e2d6; --land-host:#d6d0be; --land-stroke:#b9b2a0; --grat:rgba(0,0,0,.05); --overlay:rgba(251,250,246,.88); --overlay2:rgba(251,250,246,.96);
   --mk-fill:rgba(251,250,246,.9); --mk-hover:#17191d; --shade:23,25,29; --glow:rgba(156,123,26,.12); --scan:rgba(0,0,0,.012); --scrim:rgba(30,28,20,.25);
-  --l-eng:#a8801a; --l-esp:#c4382b; --l-ita:#1f6fc4; --l-ger:#2f8a4c; --l-fra:#8a4fd1; --l-sco:#0f8f88; --l-irl:#c85e12; --l-swe:#9a8a00; --l-den:#c8102e; --l-por:#1f8a4c; --l-usa:#2b5fb8;
+  --l-eng:#a8801a; --l-esp:#c4382b; --l-ita:#1f6fc4; --l-ger:#2f8a4c; --l-fra:#8a4fd1; --l-sco:#0f8f88; --l-irl:#c85e12; --l-swe:#9a8a00; --l-den:#c8102e; --l-por:#1f8a4c; --l-usa:#2b5fb8; --l-efl:#7d6a3c; --l-tur:#a3279a;
   --ocean:#cfd9e2; --ocean2:#e8eef3;
 }
 :root[data-theme="light"] .hero img{filter:none}
@@ -177,7 +177,7 @@ select.sort{background:var(--panel);border:1px solid var(--line);border-radius:3
 .mk{cursor:pointer}
 .mk circle{stroke-width:1.5;vector-effect:non-scaling-stroke;fill:var(--mk-fill);transition:opacity .15s}
 .mk.dim{opacity:.18;pointer-events:none}
-.mk.eng circle,.legend .eng{stroke:var(--l-eng);border-color:var(--l-eng)}.mk.esp circle,.legend .esp{stroke:var(--l-esp);border-color:var(--l-esp)}.mk.ita circle,.legend .ita{stroke:var(--l-ita);border-color:var(--l-ita)}.mk.ger circle,.legend .ger{stroke:var(--l-ger);border-color:var(--l-ger)}.mk.fra circle,.legend .fra{stroke:var(--l-fra);border-color:var(--l-fra)}.legend .sco{border-color:var(--l-sco)}.legend .irl{border-color:var(--l-irl)}.legend .swe{border-color:var(--l-swe)}.legend .den{border-color:var(--l-den)}.legend .por{border-color:var(--l-por)}.legend .usa{border-color:var(--l-usa)}
+.mk.eng circle,.legend .eng{stroke:var(--l-eng);border-color:var(--l-eng)}.mk.esp circle,.legend .esp{stroke:var(--l-esp);border-color:var(--l-esp)}.mk.ita circle,.legend .ita{stroke:var(--l-ita);border-color:var(--l-ita)}.mk.ger circle,.legend .ger{stroke:var(--l-ger);border-color:var(--l-ger)}.mk.fra circle,.legend .fra{stroke:var(--l-fra);border-color:var(--l-fra)}.legend .sco{border-color:var(--l-sco)}.legend .irl{border-color:var(--l-irl)}.legend .swe{border-color:var(--l-swe)}.legend .den{border-color:var(--l-den)}.legend .por{border-color:var(--l-por)}.legend .usa{border-color:var(--l-usa)}.legend .efl{border-color:var(--l-efl)}.legend .tur{border-color:var(--l-tur)}
 .mk:hover circle,.mk.on circle{fill:var(--mk-hover)}
 .mk text{font:600 11px var(--fd);fill:var(--ink);letter-spacing:.04em;text-transform:uppercase;paint-order:stroke;stroke:var(--bg2);stroke-width:3px;pointer-events:none}
 .maphud{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
@@ -270,7 +270,7 @@ footer b{color:var(--ink2);font-weight:500}
 <header class="top">
   <div class="brand">
     <div class="lockup"><svg class="logo" viewBox="0 0 120 120" width="64" height="64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="5.4" stroke-linecap="round"><circle cx="60" cy="60" r="50.4"/><ellipse cx="60" cy="60" rx="22.68" ry="50.4"/><path d="M9.60 60 H110.40"/><path d="M16.15 34.80 Q60 23.71 103.85 34.80"/><path d="M16.15 85.20 Q60 96.29 103.85 85.20"/></g><polygon points="60.00,40.85 78.21,54.08 71.26,75.49 48.74,75.49 41.79,54.08" fill="var(--gold)"/></svg><h1>footballclub<span>.wiki</span></h1></div>
-    <div class="sub" id="subline"><b>Every club. Every ground.</b> 194 clubs · 11 leagues · Europe &amp; North America</div>
+    <div class="sub" id="subline"><b>Every club. Every ground.</b> 236 clubs · 13 leagues · Europe &amp; North America</div>
   </div>
   <div class="status" id="status" aria-live="polite">
     <div class="row"><span class="dot" id="dot"></span><span class="k" id="feed">Initialising feed…</span></div>
@@ -315,13 +315,15 @@ footer b{color:var(--ink2);font-weight:500}
 <script>
 function start(D){
 const LG=D.leagues, CLUBS=D.clubs, SNAP=D.snapshot;
-const ORDER=["eng.1","esp.1","ita.1","ger.1","fra.1","por.1","sco.1","den.1","swe.1","irl.1","usa.1"];
+const ORDER=["eng.1","eng.2","esp.1","ita.1","ger.1","fra.1","por.1","tur.1","sco.1","den.1","swe.1","irl.1","usa.1"];
+// colour/legend key per league (eng.1 and eng.2 would otherwise share "eng")
+const lk=l=>({"eng.2":"efl"})[l]||l.slice(0,3);
 const byId={}; CLUBS.forEach(c=>byId[c.espn_id]=c);
 // live state: start from snapshot
 const live={standings:{},teams:{},mode:'snapshot',at:SNAP.generated};
 for(const k in SNAP.standings) live.standings[k]=SNAP.standings[k];
 for(const k in SNAP.teams) live.teams[k]=SNAP.teams[k];
-const RELEG={ "eng.1":3,"esp.1":3,"ita.1":3,"ger.1":2,"fra.1":2,"sco.1":1,"irl.1":1,"swe.1":1,"den.1":1,"por.1":2,"usa.1":0 };
+const RELEG={ "eng.1":3,"eng.2":3,"tur.1":3,"esp.1":3,"ita.1":3,"ger.1":2,"fra.1":2,"sco.1":1,"irl.1":1,"swe.1":1,"den.1":1,"por.1":2,"usa.1":0 };
 const EU=/UEFA/;
 const state={league:'all',q:'',sort:'pos',view:'cards'};
 const $=s=>document.querySelector(s);
@@ -330,7 +332,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&g
 
 function rankOf(c){const t=(live.standings[c.league]||[]).find(r=>r.id===c.espn_id);return t||null;}
 function teamLive(c){return live.teams[c.espn_id]||{competitions:[],next:null};}
-function shortComp(n){return n.replace('Danish ','').replace('Portuguese ','').replace('CONCACAF ','').replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');}
+function shortComp(n){return n.replace('English League Championship','Championship').replace('Turkish Super Lig','Süper Lig').replace('Turkish Cup','Türkiye Kupası').replace('Turkish ','').replace('Danish ','').replace('Portuguese ','').replace('CONCACAF ','').replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');}
 function fmtDate(iso){const d=new Date(iso);if(isNaN(d))return '';return d.toLocaleString(undefined,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 
 function nextHTML(c){
@@ -381,7 +383,7 @@ async function refreshRoster(c){
 function honoursHTML(c){
   const tile=(v,l,eu)=>`<div class="h${eu?' eu':''}"><div class="v${v?'':' z'}">${v??0}</div><div class="l">${esc(l)}</div></div>`;
   if(c.league==='usa.1') return `<div class="honours four">${tile(c.league_titles,'MLS Cup')}${tile(c.supporters_shield,"Supp. Shield")}${tile(c.cup_wins,c.cup_name)}${tile(c.ucl,'CONCACAF',true)}</div>`;
-  return `<div class="honours">${tile(c.league_titles,LG[c.league].name)}${tile(c.cup_wins,c.cup_name)}${tile(c.ucl,'UCL',true)}${tile(c.uel,'UEL',true)}${tile(c.uecl,'UECL',true)}</div>`;
+  return `<div class="honours">${tile(c.league_titles,LG[c.league].titles_label||LG[c.league].name)}${tile(c.cup_wins,c.cup_name)}${tile(c.ucl,'UCL',true)}${tile(c.uel,'UEL',true)}${tile(c.uecl,'UECL',true)}</div>`;
 }
 function card(c,full){
   const tl=teamLive(c);
@@ -510,7 +512,7 @@ function initMapLibre(){
   const map=new maplibregl.Map({container:div,style:STYLES[theme()],center:HOME.center,zoom:HOME.zoom,minZoom:1,maxZoom:17,attributionControl:{compact:true},cooperativeGestures:false});
   map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.touchPitch&&map.touchPitch.disable();
   const tip=document.getElementById('tip');
-  const geo=()=>({type:'FeatureCollection',features:CLUBS.filter(c=>vis.has(c.espn_id)).map(c=>({type:'Feature',id:+c.espn_id,geometry:{type:'Point',coordinates:[c.lon,c.lat]},properties:{id:c.espn_id,name:c.name,league:c.league,color:cssVar('--l-'+c.league.slice(0,3)),icon:'crest-'+c.espn_id}}))});
+  const geo=()=>({type:'FeatureCollection',features:CLUBS.filter(c=>vis.has(c.espn_id)).map(c=>({type:'Feature',id:+c.espn_id,geometry:{type:'Point',coordinates:[c.lon,c.lat]},properties:{id:c.espn_id,name:c.name,league:c.league,color:cssVar('--l-'+lk(c.league)),icon:'crest-'+c.espn_id}}))});
   const vis=new Set(CLUBS.map(c=>c.espn_id));
   const imgs={}; const loaded=Promise.all(CLUBS.map(c=>new Promise(res=>{const im=new Image();im.onload=()=>{imgs[c.espn_id]=im;res();};im.onerror=res;im.src=c.crest;})));
   function addLayers(){
@@ -536,7 +538,7 @@ function initMapLibre(){
   document.getElementById('zin').onclick=()=>map.zoomIn({duration:300});
   document.getElementById('zout').onclick=()=>map.zoomOut({duration:300});
   document.getElementById('zreset').onclick=()=>map.flyTo({center:HOME.center,zoom:HOME.zoom,speed:1.2,curve:1.5,essential:true});
-  document.getElementById('legend').innerHTML=ORDER.map(l=>`<span><i class="${l.slice(0,3)}"></i>${LG[l].name}</span>`).join('');
+  document.getElementById('legend').innerHTML=ORDER.map(l=>`<span><i class="${lk(l)}"></i>${LG[l].name}</span>`).join('');
   document.getElementById('mapcount').textContent='drag · pinch or scroll to zoom · tap a ground';
   mapAPI={
     filter(ids){vis.clear();ids.forEach(i=>vis.add(i));const src=map.getSource('clubs');if(src)src.setData(geo());document.getElementById('mapcount').textContent=`${ids.length} of ${CLUBS.length} plotted · drag · pinch or scroll to zoom`;},
@@ -545,7 +547,7 @@ function initMapLibre(){
 }
 
 // ---- globe ----
-const HOST=new Set(["United Kingdom","Spain","Italy","Germany","France","Ireland","Sweden","Denmark","Portugal","United States of America","Canada"]);
+const HOST=new Set(["United Kingdom","Spain","Italy","Germany","France","Ireland","Sweden","Denmark","Portugal","Turkey","United States of America","Canada"]);
 let mapAPI=null;
 function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 function initMap(){
@@ -569,7 +571,7 @@ function initMap(){
     base=Math.min(W,H)/2.15; apply(); draw();
   }
   function apply(){proj.translate([W/2,H/2]).scale(base*k).rotate(rot);}
-  const col=()=>({land:cssVar('--land'),host:cssVar('--land-host'),stroke:cssVar('--land-stroke'),grat:cssVar('--grat'),ocean:cssVar('--ocean'),ocean2:cssVar('--ocean2'),glow:cssVar('--gold'),ink:cssVar('--ink'),bg:cssVar('--bg2'),mk:cssVar('--mk-fill'),mkh:cssVar('--mk-hover'),L:{"eng.1":cssVar('--l-eng'),"esp.1":cssVar('--l-esp'),"ita.1":cssVar('--l-ita'),"ger.1":cssVar('--l-ger'),"fra.1":cssVar('--l-fra'),"sco.1":cssVar('--l-sco'),"irl.1":cssVar('--l-irl'),"swe.1":cssVar('--l-swe')}});
+  const col=()=>({land:cssVar('--land'),host:cssVar('--land-host'),stroke:cssVar('--land-stroke'),grat:cssVar('--grat'),ocean:cssVar('--ocean'),ocean2:cssVar('--ocean2'),glow:cssVar('--gold'),ink:cssVar('--ink'),bg:cssVar('--bg2'),mk:cssVar('--mk-fill'),mkh:cssVar('--mk-hover'),L:Object.fromEntries(ORDER.map(l=>[l,cssVar('--l-'+lk(l))]))});
   function draw(){
     raf=null; const C=col(); const S=base*k; const cx=W/2, cy=H/2;
     ctx.save(); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
@@ -648,7 +650,7 @@ function initMap(){
   document.getElementById('zin').onclick=()=>zoomTo(Math.min(90,k*1.6));
   document.getElementById('zout').onclick=()=>zoomTo(Math.max(.7,k/1.6));
   document.getElementById('zreset').onclick=()=>{active=null;flyTo(null,HOME.k);};
-  document.getElementById('legend').innerHTML=ORDER.map(l=>`<span><i class="${l.slice(0,3)}"></i>${LG[l].name}</span>`).join('');
+  document.getElementById('legend').innerHTML=ORDER.map(l=>`<span><i class="${lk(l)}"></i>${LG[l].name}</span>`).join('');
   new ResizeObserver(size).observe(wrap); size();
   new MutationObserver(req).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   setTimeout(()=>{if(auto)spin();},600);

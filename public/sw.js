@@ -3,7 +3,7 @@
 // Bump VERSION when the SHELL or LIBS lists change (e.g. a library upgrade in index.html).
 // The page and data are network-first, so ordinary content edits need no bump.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = `shell-${VERSION}`;   // page, icons, manifest
 const LIBS = `libs-${VERSION}`;     // cdnjs libraries and Google Fonts
 const DATA = 'data';                // last good copy of data/*.json

@@ -1,6 +1,6 @@
 # footballclub.wiki
 
-Every club, every ground. A static site: 194 clubs across eleven leagues in Europe and North America on an
+Every club, every ground. A static site: 236 clubs across thirteen leagues in Europe and North America on an
 interactive globe, with honours, stadiums, managers, captains, record holders, squads,
 standings and next fixtures.
 
