@@ -19,14 +19,27 @@ scripts/refresh.py      re-snapshots ESPN; League of Ireland from scripts/irl_st
 .github/workflows/refresh.yml   runs the refresh daily and commits
 ```
 
-## Deploy on Cloudflare Pages
+## Deploy
 
-1. Push this repo to GitHub.
-2. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → pick this repo.
-3. Framework preset **None**, build command **empty**, build output directory **`public`**. Deploy.
-4. Custom domains → add `footballclub.wiki` (and `www.footballclub.wiki`). DNS is created automatically.
+Hosted as a Cloudflare Worker (`footballregister`) with static assets, built from this repo by
+Workers Builds. Live at https://footballclub.wiki and
+https://footballregister.richardmcallister.workers.dev.
 
-Every push to `main` — including the bot's daily data commit — redeploys in under a minute.
+Build settings (Workers & Pages → footballregister → Settings → Builds):
+
+- Build command: **empty**
+- Deploy command: `npx wrangler deploy`
+- Root directory: `/`, production branch: `main`
+
+`wrangler.jsonc` points the Worker at `./public`, so only that folder is served. `public/_headers`
+sets cache lifetimes for `/data/*` and `/img/*`. The custom domain is added under the Worker's
+**Domains** tab.
+
+Every push to `main` — including the bot's daily data commit — redeploys in under a minute. If a
+push doesn't start a build, the Cloudflare ↔ GitHub connection has dropped: reconnect it from
+Settings → Builds → Manage.
+
+To deploy by hand instead: `npx wrangler deploy` from the repo root.
 
 ## Live data
 

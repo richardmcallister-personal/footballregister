@@ -5,16 +5,15 @@ file layout and data model. This file covers how the site is run and how to work
 
 ## Where things live
 
-- Repo (this folder): `~/Documents/Projects/Footballclub.wiki/footballregister`
-  — GitHub `richardmcallister-personal/footballregister`, branch `main`.
-- Parent folder `~/Documents/Projects/Footballclub.wiki/` holds design assets that are **not** in the
-  repo: `footballclub-wiki-logo/` (logo marks and lockups, light/dark, SVG + PNG) and the earlier
-  single-file drafts `european-club-register_*.html`. Copy an asset into `public/` before referencing it.
+- Repo (this folder): `~/Documents/Projects/footballclub.wiki`
+  — GitHub `richardmcallister-personal/footballregister`, branch `main`. This is the only local clone.
+- Design assets are **not** in the repo and currently sit in `~/Downloads`: `footballclub-wiki-logo/`
+  (logo marks and lockups, light/dark, SVG + PNG) and the earlier single-file drafts
+  `european-club-register_*.html`. Copy an asset into `public/` before referencing it.
 
 ## Hosting and deploys
 
-- Cloudflare **Worker** `footballregister` with Git builds (not a Pages project — README's Pages
-  instructions are out of date).
+- Cloudflare **Worker** `footballregister` with Git builds (not a Pages project).
   - Build command: empty. Deploy command: `npx wrangler deploy`. Root directory: `/`. Production branch: `main`.
   - `wrangler.jsonc` publishes `./public` as static assets; nothing outside `public/` is served.
   - `public/_headers` sets caching (`/data/*` 5 min, `/img/*` 7 days) and is honoured by Workers.
