@@ -1,0 +1,226 @@
+{
+ "2564": {
+  "name": "Shamrock Rovers",
+  "table": {
+   "rank": 1,
+   "p": 30,
+   "w": 16,
+   "d": 8,
+   "l": 6,
+   "gd": "+17",
+   "pts": 56
+  },
+  "next": {
+   "date": "2026-09-18T18:45Z",
+   "home": "Shamrock Rovers",
+   "away": "Waterford",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Tallaght Stadium"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ },
+ "7588": {
+  "name": "St Patrick's Athletic",
+  "table": {
+   "rank": 2,
+   "p": 30,
+   "w": 15,
+   "d": 8,
+   "l": 7,
+   "gd": "+22",
+   "pts": 53
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Dundalk",
+   "away": "St Patrick's Athletic",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Oriel Park"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ },
+ "615": {
+  "name": "Bohemians",
+  "table": {
+   "rank": 3,
+   "p": 30,
+   "w": 15,
+   "d": 8,
+   "l": 7,
+   "gd": "+17",
+   "pts": 53
+  },
+  "next": {
+   "date": "2026-09-18T18:45Z",
+   "home": "Bohemians",
+   "away": "Drogheda United",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Dalymount Park"
+  },
+  "competitions": [
+   "League of Ireland Premier Division",
+   "FAI Cup"
+  ]
+ },
+ "2559": {
+  "name": "Dundalk",
+  "table": {
+   "rank": 4,
+   "p": 30,
+   "w": 10,
+   "d": 11,
+   "l": 9,
+   "gd": "+1",
+   "pts": 41
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Dundalk",
+   "away": "St Patrick's Athletic",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Oriel Park"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ },
+ "2712": {
+  "name": "Derry City",
+  "table": {
+   "rank": 5,
+   "p": 30,
+   "w": 8,
+   "d": 13,
+   "l": 9,
+   "gd": "+2",
+   "pts": 37
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Waterford",
+   "away": "Derry City",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Waterford Regional Sports Centre"
+  },
+  "competitions": [
+   "League of Ireland Premier Division",
+   "FAI Cup"
+  ]
+ },
+ "20297": {
+  "name": "Shelbourne",
+  "table": {
+   "rank": 6,
+   "p": 29,
+   "w": 8,
+   "d": 12,
+   "l": 9,
+   "gd": "-3",
+   "pts": 36
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Shelbourne",
+   "away": "Drogheda United",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Tolka Park"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ },
+ "7587": {
+  "name": "Galway United",
+  "table": {
+   "rank": 7,
+   "p": 29,
+   "w": 8,
+   "d": 10,
+   "l": 11,
+   "gd": "-7",
+   "pts": 34
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Sligo Rovers",
+   "away": "Galway United",
+   "comp": "League of Ireland Premier Division",
+   "venue": "The Showgrounds"
+  },
+  "competitions": [
+   "League of Ireland Premier Division",
+   "FAI Cup"
+  ]
+ },
+ "18968": {
+  "name": "Waterford",
+  "table": {
+   "rank": 8,
+   "p": 30,
+   "w": 7,
+   "d": 12,
+   "l": 11,
+   "gd": "-9",
+   "pts": 33
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Waterford",
+   "away": "Derry City",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Waterford Regional Sports Centre"
+  },
+  "competitions": [
+   "League of Ireland Premier Division",
+   "FAI Cup"
+  ]
+ },
+ "6741": {
+  "name": "Drogheda United",
+  "table": {
+   "rank": 9,
+   "p": 30,
+   "w": 7,
+   "d": 10,
+   "l": 13,
+   "gd": "-13",
+   "pts": 31
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Shelbourne",
+   "away": "Drogheda United",
+   "comp": "League of Ireland Premier Division",
+   "venue": "Tolka Park"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ },
+ "7601": {
+  "name": "Sligo Rovers",
+  "table": {
+   "rank": 10,
+   "p": 30,
+   "w": 5,
+   "d": 8,
+   "l": 17,
+   "gd": "-27",
+   "pts": 23
+  },
+  "next": {
+   "date": "2026-09-14T18:45Z",
+   "home": "Sligo Rovers",
+   "away": "Galway United",
+   "comp": "League of Ireland Premier Division",
+   "venue": "The Showgrounds"
+  },
+  "competitions": [
+   "League of Ireland Premier Division"
+  ]
+ }
+}

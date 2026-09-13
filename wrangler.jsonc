@@ -1,0 +1,7 @@
+// Optional: deploy with `npx wrangler deploy` as a Worker with static assets.
+// Cloudflare Pages (connect the repo, output directory "public") needs no config at all.
+{
+  "name": "footballregister",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "./public" }
+}
