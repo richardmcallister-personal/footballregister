@@ -15,6 +15,13 @@
 <title>footballclub.wiki</title>
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0c10">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="footballclub">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -662,7 +669,7 @@ document.addEventListener('click',e=>{const id=e.target.closest('#main .card .id
 (function(){
   const root=document.documentElement, btn=document.getElementById('theme');
   let saved=null; try{saved=localStorage.getItem('ecr-theme');}catch(e){}
-  function apply(t){root.setAttribute('data-theme',t);btn.textContent=t==='light'?'Dark mode':'Light mode';btn.setAttribute('aria-pressed',t==='light');}
+  function apply(t){root.setAttribute('data-theme',t);document.querySelector('meta[name="theme-color"]')?.setAttribute('content',t==='light'?'#efece4':'#0a0c10');btn.textContent=t==='light'?'Dark mode':'Light mode';btn.setAttribute('aria-pressed',t==='light');}
   apply(saved==='light'||saved==='dark'?saved:(root.getAttribute('data-theme')==='light'?'light':'dark'));
   btn.onclick=()=>{const t=root.getAttribute('data-theme')==='light'?'dark':'light';apply(t);try{localStorage.setItem('ecr-theme',t);}catch(e){}};
 })();
@@ -683,8 +690,11 @@ setTimeout(goLive,50);
   Promise.all(['data/clubs.json','data/snapshot.json','data/rosters.json','data/flags.json','data/world.json'].map(f=>fetch(base+f,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(f);return r.json();})))
   .then(([clubs,snapshot,rosters,flags,world])=>{
     clubs.clubs.forEach(c=>{c.crest=base+'img/crests/'+c.espn_id+'.png';c.stadium_img=c.has_photo?base+'img/grounds/'+c.espn_id+'.jpg':null;});
-    start({leagues:clubs.leagues,clubs:clubs.clubs,snapshot,rosters,flags,world,engine:window.maplibregl?'maplibre':'canvas'});
+    // offline: map tiles can't load, so use the canvas globe (world.json is cached by sw.js)
+    start({leagues:clubs.leagues,clubs:clubs.clubs,snapshot,rosters,flags,world,engine:window.maplibregl&&navigator.onLine?'maplibre':'canvas'});
   }).catch(e=>{document.getElementById('main').innerHTML='<div class="empty">Could not load club data ('+e.message+').</div>';});
+  // installable app: offline page, images and data snapshot (see sw.js)
+  if('serviceWorker' in navigator&&location.protocol!=='file:') addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 })();
 </script>
 
