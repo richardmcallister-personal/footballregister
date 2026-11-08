@@ -7,6 +7,7 @@
   --m-bg:#F7F4EC; --m-water:#C9DCDD; --m-park:#E7EBDC; --m-urban:#EFEAE0; --m-building:#E4DDCF;
   --m-road:#FFFFFF; --m-road-case:#D8CFBE; --m-motorway:#E9C39A; --m-rail:#C9C1B1; --m-border:#9C9384;
   --m-label:#3C372F; --m-label2:#6B6457; --m-halo:#FBFAF6;
+  --scrim:rgba(10,9,7,.86); --on-photo:#FFFFFF; --on-photo-2:#E9E5DC; --bare:#16130F;
   --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Literata",Georgia,serif; --ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
@@ -137,6 +138,40 @@ dl.facts dd{margin:0;text-align:right;min-width:0}
 .maplibregl-ctrl-attrib{background:color-mix(in srgb,var(--paper) 85%,transparent)!important;color:var(--mute)}
 .maplibregl-ctrl-attrib a{color:var(--mute)!important}
 .maplibregl-ctrl-scale{background:var(--paper);border-color:var(--ink);color:var(--ink);font:12px var(--ui)}
+
+/* matchday programme: the cover photo of the week's biggest match, then the fixtures grid */
+.cover{position:relative;height:clamp(340px,46vh,460px);overflow:hidden;background:var(--bare);color:var(--on-photo);border-bottom:3px solid var(--ink)}
+.cover .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--scrim) 100%);pointer-events:none}
+.cover.bare::after{display:none}
+.cover .cv{position:absolute;left:0;right:0;bottom:0;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:22px;padding-block:0 26px}
+.cover .cc{display:block;flex:none}
+.cover .cc img{width:92px;height:92px;object-fit:contain;display:block;filter:drop-shadow(0 3px 8px rgba(0,0,0,.45))}
+.cover h1,.cover h2{font:800 clamp(40px,6vw,84px)/.9 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.club-cover .cv{grid-template-columns:auto minmax(0,1fr)}
+.cover h2 a{text-decoration:none}
+.cover h2 a:hover{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
+.cover p{margin:10px 0 0;font:600 16px var(--ui);color:var(--on-photo-2)}
+.cover .credit{position:absolute;right:10px;top:10px;z-index:1;font:12px var(--ui);color:var(--on-photo-2);background:var(--scrim);padding:4px 8px;text-decoration:none}
+.cover .credit:hover{text-decoration:underline}
+h2.big{font:800 40px/1 var(--display);margin:28px 0 6px}
+.fixtures ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px}
+.fixtures a{display:grid;grid-template-columns:40px minmax(0,1fr) auto minmax(0,1fr) 40px;align-items:center;gap:10px;min-height:64px;padding:10px 0;border-bottom:1px solid var(--rule);text-decoration:none}
+.fixtures a:hover .hn,.fixtures a:hover .an{text-decoration:underline}
+.fixtures img{width:40px;height:40px;object-fit:contain}
+.fixtures span{font:700 19px/1.05 var(--display)}
+.fixtures .hn{text-align:right}
+.fixtures time{font:600 13px var(--ui);color:var(--mute);text-align:center;min-width:6.5ch;font-variant-numeric:tabular-nums}
+.fixtures time b{display:block;font-weight:800;color:var(--ink)}
+@media (max-width:1100px){.fixtures ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .cover .cv{grid-template-columns:auto minmax(0,1fr);gap:12px;padding-block:0 18px}
+  .cover .cv>.cc:last-child{display:none}
+  .cover .cc img{width:56px;height:56px}
+  .cover p{font-size:14px}
+  .fixtures ul{grid-template-columns:1fr}
+  h2.big{font-size:32px}
+}
 
 footer.colophon{border-top:3px solid var(--ink);margin-top:40px}
 footer.colophon .wrap{padding-block:16px 40px;font-size:13px;color:var(--mute);display:grid;gap:10px;max-width:1440px}

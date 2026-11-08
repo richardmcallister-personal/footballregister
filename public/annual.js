@@ -118,6 +118,53 @@ FCW.nearHTML=(D,c,asLinks)=>`<ul class="near">${FCW.nearest(D,c).map(([km,d])=>a
   ?`<li><a href="/club/#c${d.espn_id}"><img src="${FCW.crest(d)}" alt=""><span>${esc(d.stadium)} · ${esc(d.name)}</span><b>${FCW.km(km)} km</b></a></li>`
   :`<li><button type="button" data-id="${d.espn_id}"><img src="${FCW.crest(d)}" alt=""><span>${esc(d.stadium)} · ${esc(d.name)}</span><b>${FCW.km(km)} km</b></button></li>`).join('')}</ul>`;
 
+// ---------- matchday programme: upcoming fixtures, a cover for the biggest, a grid for the rest ----------
+FCW.fixtures=function(D,leagues){
+  const now=Date.now(),seen=new Set(),out=[];
+  for(const c of D.clubs){
+    if(leagues&&!leagues.includes(c.league))continue;
+    const n=FCW.teamLive(D,c).next;if(!n)continue;
+    const t=new Date(n.date).getTime();if(!(t>now-2*3600e3))continue;
+    const h=D.byId[n.home_id],a=D.byId[n.away_id];if(!h||!a)continue;
+    const k=n.home_id+'-'+n.away_id+'-'+n.date;if(seen.has(k))continue;seen.add(k);
+    out.push({...n,t,h,a});
+  }
+  return out.sort((x,y)=>x.t-y.t);
+};
+// the week ahead from the first fixture, and the one to put on the cover: the biggest ground with a photo
+FCW.week=list=>list.length?list.filter(f=>f.t<list[0].t+7*864e5):[];
+FCW.pickCover=list=>[...list].sort((x,y)=>(y.h.has_photo?1:0)-(x.h.has_photo?1:0)||(y.h.capacity||0)-(x.h.capacity||0))[0]||null;
+FCW.longDate=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})};
+FCW.coverHTML=function(D,f){
+  if(!f)return '';
+  const h=f.h,a=f.a,comp=f.comp?FCW.shortComp(f.comp):D.L[h.league].name;
+  return `<section class="cover${h.has_photo?'':' bare'}" aria-label="Featured match">
+    ${h.has_photo?`<img class="ph" src="/img/grounds/${h.espn_id}.jpg" alt="">`:''}
+    <div class="cv wrap">
+      <a class="cc" href="/club/#c${h.espn_id}"><img src="${FCW.crest(h)}" alt="${esc(h.name)}"></a>
+      <div class="ct"><h2><a href="/club/#c${h.espn_id}">${esc(h.name)}</a> v <a href="/club/#c${a.espn_id}">${esc(a.name)}</a></h2>
+        <p>${esc(FCW.longDate(f.date))} · ${esc(f.venue||h.stadium)}${h.capacity?', '+fmt(h.capacity):''} · ${esc(comp)}</p></div>
+      <a class="cc" href="/club/#c${a.espn_id}"><img src="${FCW.crest(a)}" alt="${esc(a.name)}"></a>
+    </div>
+    ${h.has_photo&&h.stadium_credit?`<a class="credit" href="${esc(h.stadium_credit)}" target="_blank" rel="noopener">${esc(h.stadium)} · Wikimedia</a>`:''}
+  </section>`;
+};
+FCW.clubCoverHTML=function(D,c){
+  return `<section class="cover club-cover${c.has_photo?'':' bare'}" aria-label="${esc(c.name)}">
+    ${c.has_photo?`<img class="ph" src="/img/grounds/${c.espn_id}.jpg" alt="${esc(c.stadium)}">`:''}
+    <div class="cv wrap"><span class="cc"><img src="${FCW.crest(c)}" alt=""></span>
+      <div class="ct"><h1>${esc(c.name)}</h1><p>${esc(D.L[c.league].name)} · Est. ${c.founded??'—'} · ${esc(c.stadium)}, ${esc(c.city)}</p></div></div>
+    ${c.has_photo&&c.stadium_credit?`<a class="credit" href="${esc(c.stadium_credit)}" target="_blank" rel="noopener">${esc(c.stadium)} · Wikimedia</a>`:''}
+  </section>`;
+};
+FCW.fixturesHTML=function(D,list,title){
+  if(!list.length)return '';
+  const day=t=>new Date(t).toLocaleString('en-GB',{weekday:'short'}),tm=t=>new Date(t).toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return `<section class="fixtures wrap" aria-label="${esc(title)}"><h2 class="big">${esc(title)}</h2><ul>
+    ${list.map(f=>`<li><a href="/club/#c${f.h.espn_id}"><img src="${FCW.crest(f.h)}" alt=""><span class="hn">${esc(f.h.name)}</span><time datetime="${esc(f.date)}"><b>${day(f.t)}</b>${tm(f.t)}</time><span class="an">${esc(f.a.name)}</span><img src="${FCW.crest(f.a)}" alt=""></a></li>`).join('')}
+  </ul></section>`;
+};
+
 // ---------- search: clubs, grounds, cities, managers ----------
 FCW.attachSearch=function(D,input,list,href=c=>'/club/#c'+c.espn_id,onPick){
   input.addEventListener('input',()=>{const t=input.value.trim().toLowerCase();if(!t){list.hidden=true;return}

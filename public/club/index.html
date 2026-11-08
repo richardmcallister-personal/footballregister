@@ -12,20 +12,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
-<link rel="stylesheet" href="/annual.css?v=1">
+<link rel="stylesheet" href="/annual.css?v=2">
 <script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* Club: one yearbook entry. Photo and record on the left; position, fixture and the ground's place on the right; squad below. */
-.crumb{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap;padding-block:10px;border-bottom:1px solid var(--rule);font-size:14px}
+.crumb{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap;padding-block:10px;font-size:14px}
 .crumb a{min-height:40px;display:inline-flex;align-items:center;font-weight:600}
 .crumb .search{flex:0 1 320px;margin-left:auto}
 .crumb .search input{min-height:40px;padding:8px 10px;font-size:15px}
 .grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:36px;padding-block:22px 0}
 .grid>*{min-width:0}
-.top .head{margin-top:16px}
-.top .head img{width:84px;height:84px}
-.top .head h1{font-size:clamp(44px,5.4vw,68px)}
-.top .honours{font-size:18px}
+.top .honours{font-size:18px;margin-top:0}
 .side{display:grid;gap:8px;align-content:start}
 .side h2.sec:first-child{margin-top:0}
 .plate{height:300px}
@@ -62,13 +59,14 @@ table.ref.mini tr.sel td{font-weight:800}
     <input id="q" type="search" placeholder="Find a club, ground or city" autocomplete="off">
     <ul class="results" id="results" hidden></ul></div>
 </div></div>
+<div id="cover"></div>
 <main class="wrap" id="main"><p class="empty">Loading the club…</p></main>
 <footer class="colophon"><div class="wrap">
   <div class="feed" id="feed"><i></i>Daily snapshot</div>
   <p><b>Sources.</b> Club facts from Wikipedia club and stadium pages and official club sites; managers and captains for 2026-27. Position, next match and squad are read from ESPN’s public feed when it can be reached, otherwise from the daily snapshot. Stadium photographs from Wikimedia Commons, credited on each photo; crests are the property of the clubs. Map tiles from OpenFreeMap, data © OpenStreetMap contributors.</p>
 </div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
-<script src="/annual.js?v=1"></script>
+<script src="/annual.js?v=2"></script>
 <script>
 (async function(){
   const $=s=>document.querySelector(s),esc=FCW.esc;
@@ -110,9 +108,10 @@ table.ref.mini tr.sel td{font-weight:800}
     const l=D.L[c.league];
     document.title=c.name+' · footballclub.wiki';
     $('#back').textContent=l.name;$('#back').href='/#'+FCW.slug(c.league);
+    $('#cover').innerHTML=FCW.clubCoverHTML(D,c);
     $('#main').innerHTML=`<article>
       <div class="grid">
-        <div class="top">${FCW.photoHTML(c)}${FCW.headHTML(D,c,'h1')}
+        <div class="top">
           <p class="honours"><b>Honours</b> ${FCW.honours(D,c)}</p>
           ${FCW.factsHTML(D,c)}
           <div class="btns">${c.website?`<a class="pri" href="${esc(c.website)}" target="_blank" rel="noopener">Club website</a>`:''}${c.instagram?`<a href="${esc(c.instagram)}" target="_blank" rel="noopener">Instagram</a>`:''}<a href="https://www.espn.com/soccer/team/fixtures/_/id/${c.espn_id}" target="_blank" rel="noopener">Fixtures on ESPN</a></div>
