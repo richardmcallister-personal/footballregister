@@ -3,7 +3,7 @@
 // Bump VERSION when the SHELL or LIBS lists change (e.g. a library upgrade in index.html).
 // The page and data are network-first, so ordinary content edits need no bump.
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL = `shell-${VERSION}`;   // page, icons, manifest
 const LIBS = `libs-${VERSION}`;     // cdnjs libraries and Google Fonts
 const DATA = 'data';                // last good copy of data/*.json
@@ -11,7 +11,7 @@ const IMAGES = 'images';            // crests and ground photos
 const KEEP = [SHELL, LIBS, DATA, IMAGES];
 
 const SHELL_URLS = [
-  '/', '/favicon.svg', '/logo-mark.svg', '/manifest.webmanifest', '/apple-touch-icon.png',
+  '/', '/grounds/', '/favicon.svg', '/logo-mark.svg', '/manifest.webmanifest', '/apple-touch-icon.png',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png',
 ];
 const DATA_URLS = ['clubs', 'snapshot', 'rosters', 'flags', 'world'].map(f => `/data/${f}.json`);
