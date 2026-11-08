@@ -1,6 +1,7 @@
 # footballclub.wiki
 
-Static site: 236 clubs across thirteen leagues in Europe and North America on an interactive globe. See README.md for the
+Static site: 236 clubs across thirteen leagues in Europe and North America. Pages: Leagues (`index.html`), Club
+(`club/`, `#c<espn_id>`) and Grounds (`grounds/`), sharing `annual.css` and `annual.js` (theme, data, live ESPN layer, maps). See README.md for the
 file layout and data model. This file covers how the site is run and how to work on it.
 
 ## Where things live
@@ -43,7 +44,8 @@ file layout and data model. This file covers how the site is run and how to work
   Page and data are network-first, images stale-while-revalidate; ESPN and map tiles aren't cached.
 - **Bump `VERSION` in `sw.js` whenever a library URL/version in `index.html` changes** (and update
   `LIB_URLS` to match), or installed copies keep the old library. Content edits need no bump.
-- Offline, `index.html` picks the canvas globe (`navigator.onLine` false) since map tiles can't load.
+- Offline, the tables and club entries work from the cached snapshot; map tiles can't load.
+- When `annual.css` or `annual.js` changes, bump the `?v=` stamp on their tags in every HTML file.
 - `_headers` serves `sw.js` with `no-cache` so updates reach users on their next visit.
 
 ## Working rules

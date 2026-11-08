@@ -3,7 +3,7 @@
 // Bump VERSION when the SHELL or LIBS lists change (e.g. a library upgrade in index.html).
 // The page and data are network-first, so ordinary content edits need no bump.
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL = `shell-${VERSION}`;   // page, icons, manifest
 const LIBS = `libs-${VERSION}`;     // cdnjs libraries and Google Fonts
 const DATA = 'data';                // last good copy of data/*.json
@@ -11,16 +11,14 @@ const IMAGES = 'images';            // crests and ground photos
 const KEEP = [SHELL, LIBS, DATA, IMAGES];
 
 const SHELL_URLS = [
-  '/', '/grounds/', '/favicon.svg', '/logo-mark.svg', '/manifest.webmanifest', '/apple-touch-icon.png',
+  '/', '/grounds/', '/club/', '/annual.css', '/annual.js', '/favicon.svg', '/logo-mark.svg', '/manifest.webmanifest', '/apple-touch-icon.png',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png',
 ];
-const DATA_URLS = ['clubs', 'snapshot', 'rosters', 'flags', 'world'].map(f => `/data/${f}.json`);
+const DATA_URLS = ['clubs', 'snapshot', 'rosters', 'flags'].map(f => `/data/${f}.json`);
 const LIB_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css',
   'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js',
-  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap',
+  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap',
 ];
 const LIB_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -73,17 +71,18 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (url.origin === self.location.origin) {
-    if (req.mode === 'navigate') return event.respondWith(networkFirst(req, SHELL, '/'));
+    if (req.mode === 'navigate') return event.respondWith(networkFirst(req, SHELL, null, '/'));
+    if (url.pathname === '/annual.css' || url.pathname === '/annual.js') return event.respondWith(networkFirst(req, SHELL));
     if (url.pathname.startsWith('/data/')) return event.respondWith(networkFirst(req, DATA));
     if (url.pathname.startsWith('/img/')) return event.respondWith(staleWhileRevalidate(req, IMAGES));
     if (SHELL_URLS.includes(url.pathname)) return event.respondWith(cacheFirst(req, SHELL));
     return; // anything else (sw.js, robots.txt, …) goes straight to the network
   }
   if (LIB_HOSTS.includes(url.hostname)) return event.respondWith(cacheFirst(req, LIBS));
-  // ESPN live data and map tiles pass through; the page falls back to the snapshot / canvas globe.
+  // ESPN live data and map tiles pass through; the pages fall back to the daily snapshot.
 });
 
-async function networkFirst(req, cacheName, fallbackKey) {
+async function networkFirst(req, cacheName, fallbackKey, lastResort) {
   const cache = await caches.open(cacheName);
   const key = fallbackKey || new URL(req.url).pathname; // ignore cache-busting query strings
   try {
@@ -91,7 +90,7 @@ async function networkFirst(req, cacheName, fallbackKey) {
     if (res.ok) cache.put(key, res.clone());
     return res;
   } catch (e) {
-    const hit = await cache.match(key);
+    const hit = await cache.match(key) || (lastResort && await cache.match(lastResort));
     if (hit) return hit;
     throw e;
   }

@@ -5,141 +5,39 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Grounds · footballclub.wiki</title>
 <meta name="description" content="Every ground on one map: 236 clubs in Europe and North America, with each club's crest as its marker.">
-<meta name="theme-color" content="#F8F6F1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#131512" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F8F6F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
+<link rel="stylesheet" href="/annual.css?v=1">
+<script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
-/* The Annual: a football yearbook page. Masthead rule, map plate, club entry beside it; stacks on phones.
-   Every colour is a token; the dark edition redefines tokens only. */
-:root{
-  --paper:#F8F6F1; --ink:#16130F; --mute:#5C564D; --rule:#D9D3C7; --border:#CBC3B3; --land:#FBFAF6;
-  --acc:#0F5A3A; --acc-ink:#FFFFFF; --ring:#16130F;
-  /* map palette, applied to the OpenFreeMap style at load */
-  --m-bg:#F7F4EC; --m-water:#C9DCDD; --m-park:#E7EBDC; --m-urban:#EFEAE0; --m-building:#E4DDCF;
-  --m-road:#FFFFFF; --m-road-case:#D8CFBE; --m-motorway:#E9C39A; --m-rail:#C9C1B1; --m-border:#9C9384;
-  --m-label:#3C372F; --m-label2:#6B6457; --m-halo:#FBFAF6;
-  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Literata",Georgia,serif; --ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#131512; --ink:#ECE8DF; --mute:#A9A397; --rule:#2F322D; --border:#3A3E37; --land:#1B1E19;
-  --acc:#62C08F; --acc-ink:#0D1A13; --ring:#ECE8DF;
-  --m-bg:#1C1F1B; --m-water:#16282B; --m-park:#1F2A20; --m-urban:#22251F; --m-building:#2A2D27;
-  --m-road:#34372F; --m-road-case:#24271F; --m-motorway:#6E5638; --m-rail:#3A3E37; --m-border:#8A8476;
-  --m-label:#D8D3C8; --m-label2:#A39D90; --m-halo:#1B1E19; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#131512; --ink:#ECE8DF; --mute:#A9A397; --rule:#2F322D; --border:#3A3E37; --land:#1B1E19;
-  --acc:#62C08F; --acc-ink:#0D1A13; --ring:#ECE8DF;
-  --m-bg:#1C1F1B; --m-water:#16282B; --m-park:#1F2A20; --m-urban:#22251F; --m-building:#2A2D27;
-  --m-road:#34372F; --m-road-case:#24271F; --m-motorway:#6E5638; --m-rail:#3A3E37; --m-border:#8A8476;
-  --m-label:#D8D3C8; --m-label2:#A39D90; --m-halo:#1B1E19; color-scheme:dark}
-
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.45}
-.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1440px;margin:0 auto}
-a{color:inherit}
-:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
-header{border-bottom:3px solid var(--ink)}
-header .wrap{display:flex;align-items:end;justify-content:space-between;gap:16px;padding-block:18px 10px;flex-wrap:wrap}
-.brand{font-family:var(--display);font-weight:700;font-size:40px;line-height:.9;letter-spacing:-.01em;text-decoration:none;display:inline-flex;align-items:end;min-height:44px}
-.brand i{font-style:normal;color:var(--acc)}
-nav.top{display:flex;gap:20px;font-weight:600;font-size:15px}
-nav.top a{text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
-nav.top a[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--acc)}
-
-.bar .wrap{min-width:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-block:12px;border-bottom:1px solid var(--rule)}
-.seg{display:inline-flex;border:1px solid var(--border)}
-.seg button,.chips button{font:600 14px var(--ui);color:var(--ink);background:transparent;border:0;min-height:44px;padding:0 14px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.chips{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
-.chips button{border:1px solid var(--border);padding:0 10px;font-size:13px}
-.chips button[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
-.chips button b{font-variant-numeric:tabular-nums;font-weight:800;margin-left:4px;opacity:.8}
-
 main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;padding-block:20px 40px}
-.plate{position:relative;border:1px solid var(--border);background:var(--m-bg);height:clamp(440px,74vh,820px);overflow:hidden}
-#map{position:absolute;inset:0}
-.maplibregl-ctrl-group{background:var(--paper)!important;border:1px solid var(--border);border-radius:0!important;box-shadow:none!important}
-.maplibregl-ctrl-group button{width:44px!important;height:44px!important}
-.maplibregl-ctrl-group button+button{border-top:1px solid var(--rule)!important}
-.maplibregl-ctrl-icon{filter:none}
-:root[data-theme="dark"] .maplibregl-ctrl-icon{filter:invert(1)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .maplibregl-ctrl-icon{filter:invert(1)}}
-.maplibregl-ctrl-attrib{background:color-mix(in srgb,var(--paper) 85%,transparent)!important;color:var(--mute)}
-.maplibregl-ctrl-attrib a{color:var(--mute)!important}
-.maplibregl-ctrl-scale{background:var(--paper);border-color:var(--ink);color:var(--ink);font:12px var(--ui)}
+.plate{height:clamp(440px,74vh,820px)}
 .hint{position:absolute;left:10px;top:10px;background:var(--paper);border:1px solid var(--border);padding:6px 10px;font-size:12.5px;color:var(--mute);pointer-events:none}
-
 aside{min-width:0}
-.search{position:relative}
-.search input{width:100%;font:16px var(--ui);color:var(--ink);background:var(--land);border:1px solid var(--border);padding:11px 12px;min-height:46px;border-radius:0}
-.results{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-top:0;background:var(--land);max-height:300px;overflow:auto;position:absolute;left:0;right:0;z-index:5}
-.results button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--rule);color:var(--ink);font:15px var(--ui);min-height:44px;padding:6px 10px;cursor:pointer}
-.results img{width:24px;height:24px;object-fit:contain;flex:none}
-.results small{color:var(--mute);margin-left:auto;font-size:12.5px;text-align:right}
-.results .none{padding:10px;color:var(--mute)}
-
 .entry{margin-top:18px}
-.photo{margin:0}
-.photo img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--rule)}
-.photo figcaption{font-size:12px;color:var(--mute);margin-top:4px}
-.photo figcaption a{color:var(--mute)}
-.head{display:flex;gap:14px;align-items:center;margin-top:14px}
-.head img{width:60px;height:60px;object-fit:contain;flex:none}
-.head h1{font-family:var(--display);font-weight:700;font-size:40px;line-height:.95;margin:0;text-wrap:balance}
-.head .sub{color:var(--mute);font-size:14px;margin-top:3px}
-.honours{font-family:var(--body);font-size:16.5px;line-height:1.6;margin:14px 0 0;border-top:2px solid var(--ink);padding-top:10px}
-.honours b{font-family:var(--ui)}
-dl{margin:10px 0 0;font-family:var(--body);font-size:16px}
-dl div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-top:1px solid var(--rule)}
-dt{font-family:var(--ui);font-size:12.5px;font-weight:800;color:var(--mute);flex:none}
-dd{margin:0;text-align:right;min-width:0}
-h2{font-size:13px;font-weight:800;color:var(--mute);margin:18px 0 4px}
-.next{border:1px solid var(--border);background:var(--land);padding:10px 12px;font-size:15px}
-.next b{display:block;font-family:var(--display);font-size:22px;line-height:1.05;font-weight:700}
-.next span{color:var(--mute);font-size:13.5px}
-.near{list-style:none;margin:0;padding:0}
-.near button{display:flex;gap:10px;align-items:center;width:100%;background:transparent;border:0;border-top:1px solid var(--rule);color:var(--ink);font:15px var(--ui);min-height:44px;padding:4px 0;cursor:pointer;text-align:left}
-.near img{width:24px;height:24px;object-fit:contain;flex:none}
-.near span{min-width:0}
-.near b{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
-.links{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.links a,.links button{flex:1 1 140px;min-height:44px;display:grid;place-items:center;border:1px solid var(--ink);background:transparent;color:var(--ink);font:700 15px var(--ui);text-decoration:none;cursor:pointer;padding:0 10px}
-.empty{font-family:var(--body);color:var(--mute);margin-top:18px}
-.note{font-size:12.5px;color:var(--mute);margin-top:20px}
-
-@media (max-width:900px){
-  main .wrap{grid-template-columns:1fr}
-  .plate{height:clamp(380px,62vh,580px)}
-  .brand{font-size:32px}
-  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1 1 100%}
-  .chips::-webkit-scrollbar{display:none}
-  .chips button{white-space:nowrap;flex:none}
-}
+@media (max-width:900px){main .wrap{grid-template-columns:1fr}.plate{height:clamp(380px,62vh,580px)}}
 </style>
 </head>
 <body>
-<header><div class="wrap">
+<header class="mast"><div class="wrap">
   <a class="brand" href="/">footballclub<i>.wiki</i></a>
-  <nav class="top" aria-label="Sections"><a href="/">Clubs</a><a href="/grounds/" aria-current="page">Grounds</a></nav>
+  <div class="right">
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/grounds/" aria-current="page">Grounds</a></nav>
+    <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
+  </div>
 </div></header>
-
 <div class="bar"><div class="wrap">
   <div class="seg" role="group" aria-label="Region"><button id="rEU" type="button" aria-pressed="true">Europe</button><button id="rNA" type="button" aria-pressed="false">North America</button></div>
   <div class="chips" id="chips" role="group" aria-label="League"></div>
 </div></div>
-
 <main><div class="wrap">
   <section class="plate" aria-label="Map of grounds">
-    <div id="map" role="region" aria-label="Map of grounds with club crests as markers"></div>
+    <div class="map" id="map" role="region" aria-label="Map of grounds with club crests as markers"></div>
     <div class="hint" id="hint">Drag to move · scroll or pinch to zoom · tap a crest</div>
   </section>
   <aside>
@@ -147,121 +45,33 @@ h2{font-size:13px;font-weight:800;color:var(--mute);margin:18px 0 4px}
       <input id="q" type="search" placeholder="Find a club, ground or city" autocomplete="off">
       <ul class="results" id="results" hidden></ul></div>
     <div id="entry"><p class="empty">Loading 236 grounds…</p></div>
-    <p class="note">Map tiles from OpenFreeMap, data © OpenStreetMap contributors. Club facts from footballclub.wiki; next matches from the daily snapshot.</p>
+    <p class="note" style="margin-top:20px">Map tiles from OpenFreeMap, data © OpenStreetMap contributors. Next matches from ESPN when it can be reached, otherwise the daily snapshot.</p>
   </aside>
 </div></main>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
+<script src="/annual.js?v=1"></script>
 <script>
 (async function(){
-  const $=s=>document.querySelector(s);
-  const root=document.documentElement;
+  const $=s=>document.querySelector(s),esc=FCW.esc;
   const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const darkMQ=matchMedia('(prefers-color-scheme: dark)');
-  const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':darkMQ.matches;
-  const css=n=>getComputedStyle(root).getPropertyValue(n).trim();
-  const esc=x=>String(x??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-
-  const [clubData,snap]=await Promise.all([fetch('/data/clubs.json').then(r=>r.json()),fetch('/data/snapshot.json').then(r=>r.json()).catch(()=>({}))]);
-  const L=clubData.leagues;
-  const clubs=clubData.clubs.filter(c=>c.lat!=null&&c.lon!=null);
-  const byId=Object.fromEntries(clubs.map(c=>[c.espn_id,c]));
+  let map;
+  FCW.initTheme(()=>map&&map.retheme());
+  const D=await FCW.load();
+  const clubs=D.clubs.filter(c=>c.lat!=null&&c.lon!=null),byId=D.byId,L=D.L;
   const NA=c=>c.league==='usa.1';
-  const teams=snap.teams||{};
   let region='eu',league='all',selected=null;
-
-  // ---------- league chips ----------
-  const order=['eng.1','eng.2','esp.1','ita.1','ger.1','fra.1','por.1','tur.1','sco.1','den.1','swe.1','irl.1','usa.1'];
   const inRegion=c=>region==='na'?NA(c):!NA(c);
+
   function drawChips(){
     const chips=$('#chips');chips.innerHTML='';
-    ['all',...order.filter(k=>region==='na'?k==='usa.1':k!=='usa.1')].forEach(k=>{
+    ['all',...FCW.ORDER.filter(k=>region==='na'?k==='usa.1':k!=='usa.1')].forEach(k=>{
       const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(league===k));
       b.innerHTML=esc(k==='all'?'All':L[k].name)+'<b>'+clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)).length+'</b>';
-      b.onclick=()=>{league=k;drawChips();applyFilter();fit(clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)))};
+      b.onclick=()=>{league=k;drawChips();FCW.dimLeague(map,league);fit(clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)))};
       chips.appendChild(b)});
   }
-
-  // ---------- map ----------
-  const STYLE={light:'https://tiles.openfreemap.org/styles/positron',dark:'https://tiles.openfreemap.org/styles/dark'};
-  const map=new maplibregl.Map({container:'map',style:STYLE[isDark()?'dark':'light'],center:[8,50],zoom:3.6,minZoom:2,maxZoom:18,
-    attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false});
-  map.touchZoomRotate.disableRotation();
-  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');
-
-  // Recolour the tile style into the Annual palette: paper land, quiet water, warm roads.
-  function restyle(){
-    const set=(id,prop,val)=>{try{map.setPaintProperty(id,prop,val)}catch(e){}};
-    for(const l of map.getStyle().layers){
-      const id=l.id;
-      if(l.type==='background')set(id,'background-color',css('--m-bg'));
-      else if(l.type==='fill'){
-        if(/water|ocean|lake|river/.test(id))set(id,'fill-color',css('--m-water'));
-        else if(/park|wood|forest|grass|landcover|green/.test(id))set(id,'fill-color',css('--m-park'));
-        else if(/building/.test(id))set(id,'fill-color',css('--m-building'));
-        else if(/landuse|residential|urban|industrial|commercial/.test(id))set(id,'fill-color',css('--m-urban'));
-      }
-      else if(l.type==='line'){
-        if(/water|river|stream|canal|waterway/.test(id))set(id,'line-color',css('--m-water'));
-        else if(/boundary|admin/.test(id))set(id,'line-color',css('--m-border'));
-        else if(/rail|transit/.test(id))set(id,'line-color',css('--m-rail'));
-        else if(/casing|case/.test(id))set(id,'line-color',css('--m-road-case'));
-        else if(/motorway|trunk/.test(id))set(id,'line-color',css('--m-motorway'));
-        else if(/road|highway|street|path|minor|primary|secondary|tertiary|service|bridge|tunnel/.test(id))set(id,'line-color',css('--m-road'));
-      }
-      else if(l.type==='symbol'&&l.layout&&l.layout['text-field']){
-        const minor=/poi|road|street|highway|water/.test(id);
-        set(id,'text-color',css(minor?'--m-label2':'--m-label'));set(id,'text-halo-color',css('--m-halo'));set(id,'text-halo-width',1.4);
-      }
-    }
-  }
-
-  // crest images, loaded once and re-added after every style change
-  const imgs={};
-  await Promise.all(clubs.map(c=>new Promise(res=>{const im=new Image();im.onload=()=>{imgs[c.espn_id]=im;res()};im.onerror=res;im.src='/img/crests/'+c.espn_id+'.png'})));
-  const geo=()=>({type:'FeatureCollection',features:clubs.map(c=>({type:'Feature',id:+c.espn_id,geometry:{type:'Point',coordinates:[c.lon,c.lat]},
-    properties:{id:c.espn_id,name:c.name,stadium:c.stadium,league:c.league,cap:c.capacity||0,icon:'crest-'+c.espn_id}}))});
-
-  function addClubLayers(){
-    if(map.getSource('clubs'))return;
-    for(const id in imgs){if(!map.hasImage('crest-'+id))map.addImage('crest-'+id,imgs[id],{pixelRatio:2})}
-    map.addSource('clubs',{type:'geojson',data:geo(),promoteId:'id'});
-    const size=['interpolate',['linear'],['zoom'],2,.26,5,.4,9,.62,14,.85];
-    map.addLayer({id:'club-halo',type:'circle',source:'clubs',paint:{
-      'circle-color':css('--land'),
-      'circle-radius':['interpolate',['linear'],['zoom'],2,7.5,5,11.5,9,17.5,14,24],
-      'circle-stroke-color':['case',['boolean',['feature-state','sel'],false],css('--ring'),css('--border')],
-      'circle-stroke-width':['case',['boolean',['feature-state','sel'],false],3,1],
-      'circle-opacity':1,'circle-stroke-opacity':1}});
-    map.addLayer({id:'club-crest',type:'symbol',source:'clubs',layout:{
-      'icon-image':['get','icon'],'icon-size':size,'icon-allow-overlap':true,'icon-ignore-placement':true,
-      'symbol-sort-key':['get','cap'],
-      'text-field':['step',['zoom'],'',9,['get','stadium']],'text-font':['Noto Sans Bold'],'text-size':12,
-      'text-anchor':'left','text-offset':[1.6,0],'text-optional':true},
-      paint:{'text-color':css('--ink'),'text-halo-color':css('--land'),'text-halo-width':1.6}});
-    applyFilter();
-    if(selected)map.setFeatureState({source:'clubs',id:selected.espn_id},{sel:true});
-  }
-  function applyFilter(){
-    if(!map.getLayer('club-crest'))return;
-    const on=['any',['==',league,'all'],['==',['get','league'],league]];
-    map.setPaintProperty('club-crest','icon-opacity',['case',on,1,.16]);
-    map.setPaintProperty('club-crest','text-opacity',['case',on,1,0]);
-    map.setPaintProperty('club-halo','circle-opacity',['case',on,1,.16]);
-    map.setPaintProperty('club-halo','circle-stroke-opacity',['case',on,1,.16]);
-  }
-  const ready=()=>{restyle();addClubLayers()};
-  map.on('style.load',ready);
-  // the style may already have loaded while the crests were downloading
-  if(map.getStyle&&map.style&&map.style._loaded)ready();
-  map.once('idle',ready);
-  // follow the device theme
-  darkMQ.addEventListener('change',()=>{if(!root.dataset.theme){map.setStyle(STYLE[isDark()?'dark':'light'])}});
-
-  map.on('click','club-crest',e=>{const f=e.features&&e.features[0];if(f)select(byId[f.properties.id],false)});
-  map.on('click','club-halo',e=>{const f=e.features&&e.features[0];if(f)select(byId[f.properties.id],false)});
-  for(const id of ['club-crest','club-halo']){map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave',id,()=>map.getCanvas().style.cursor='')}
+  await FCW.loadCrests(clubs);
+  map=FCW.makeMap('map',{clubs,onClick:id=>select(byId[id],false),onReady:()=>FCW.dimLeague(map,league)});
   map.once('movestart',()=>{$('#hint').hidden=true});
 
   const core=c=>NA(c)||c.lon>-11;
@@ -270,63 +80,36 @@ h2{font-size:13px;font-weight:800;color:var(--mute);margin:18px 0 4px}
     const b=new maplibregl.LngLatBounds();list.forEach(c=>b.extend([c.lon,c.lat]));
     map.fitBounds(b,{padding:40,maxZoom:12,duration:instant||still?0:900});
   }
-  function setRegion(r){
-    region=r;$('#rEU').setAttribute('aria-pressed',String(r==='eu'));$('#rNA').setAttribute('aria-pressed',String(r==='na'));
-    league='all';drawChips();applyFilter();fit(clubs.filter(inRegion));
-  }
+  function paintRegion(){$('#rEU').setAttribute('aria-pressed',String(region==='eu'));$('#rNA').setAttribute('aria-pressed',String(region==='na'))}
+  function setRegion(r){region=r;paintRegion();league='all';drawChips();FCW.dimLeague(map,league);fit(clubs.filter(inRegion))}
   $('#rEU').onclick=()=>setRegion('eu');$('#rNA').onclick=()=>setRegion('na');
 
-  // ---------- club entry ----------
-  const R=Math.PI/180;
-  const dist=(a,b)=>{const dp=(b.lat-a.lat)*R,dl=(b.lon-a.lon)*R;const h=Math.sin(dp/2)**2+Math.cos(a.lat*R)*Math.cos(b.lat*R)*Math.sin(dl/2)**2;return 12742*Math.asin(Math.sqrt(h))};
-  const fmt=n=>n==null?'':Number(n).toLocaleString('en-GB');
-  const row=(t,v)=>v?`<div><dt>${t}</dt><dd>${v}</dd></div>`:'';
-  function honours(c){const p=[],lab=(L[c.league]&&L[c.league].titles_label)||'League';
-    if(c.league_titles)p.push(lab+' '+c.league_titles);if(c.cup_wins)p.push(esc(c.cup_name)+' '+c.cup_wins);
-    if(c.ucl)p.push('European Cup '+c.ucl);if(c.uel)p.push('Europa League '+c.uel);if(c.uecl)p.push('Conference League '+c.uecl);
-    return p.length?p.join(' · '):'No major honours yet'}
-  function nextMatch(c){const n=teams[c.espn_id]&&teams[c.espn_id].next;if(!n)return '';
-    const d=new Date(n.date);const when=isNaN(d)?'':d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-    return `<h2>Next match</h2><div class="next"><b>${esc(n.home)} v ${esc(n.away)}</b><span>${esc(when)}${n.venue?' · '+esc(n.venue):''}${n.comp?' · '+esc(n.comp):''}</span></div>`}
   function select(c,fly){
     if(!c)return;
-    if(inRegion(c)===false){region=NA(c)?'na':'eu';$('#rEU').setAttribute('aria-pressed',String(region==='eu'));$('#rNA').setAttribute('aria-pressed',String(region==='na'));league='all';drawChips();applyFilter()}
-    if(selected&&map.getSource('clubs'))map.setFeatureState({source:'clubs',id:selected.espn_id},{sel:false});
-    selected=c;if(map.getSource('clubs'))map.setFeatureState({source:'clubs',id:c.espn_id},{sel:true});
-    const near=clubs.filter(d=>d!==c&&NA(d)===NA(c)).map(d=>[dist(c,d),d]).sort((a,b)=>a[0]-b[0]).slice(0,4);
-    const photo=c.has_photo?`<figure class="photo"><img src="/img/grounds/${c.espn_id}.jpg" alt="${esc(c.stadium)}" loading="lazy"><figcaption>${esc(c.stadium)}${c.stadium_credit?` · <a href="${esc(c.stadium_credit)}" target="_blank" rel="noopener">photo · Wikimedia</a>`:''}</figcaption></figure>`:'';
-    $('#entry').innerHTML=`<article class="entry">${photo}
-      <div class="head"><img src="/img/crests/${c.espn_id}.png" alt=""><div><h1>${esc(c.name)}</h1>
-      <div class="sub">${esc(L[c.league].name)} · Est. ${c.founded??'—'} · ${esc(c.city)}</div></div></div>
-      <p class="honours"><b>Honours</b> ${honours(c)}</p>
-      <dl>${row('Ground',esc(c.stadium)+(c.capacity?', '+fmt(c.capacity):''))}${row('Manager',esc(c.manager))}${row('Captain',esc(c.captain))}
-      ${row('Record scorer',c.record_scorer?esc(c.record_scorer)+(c.record_scorer_goals?', '+c.record_scorer_goals:''):'')}
-      ${row('Most appearances',c.record_apps?esc(c.record_apps)+(c.record_apps_count?', '+c.record_apps_count:''):'')}</dl>
-      ${nextMatch(c)}
-      <h2>Nearest grounds</h2><ul class="near">${near.map(([km,d])=>`<li><button type="button" data-id="${d.espn_id}"><img src="/img/crests/${d.espn_id}.png" alt=""><span>${esc(d.stadium)} · ${esc(d.name)}</span><b>${km<10?km.toFixed(1):Math.round(km)} km</b></button></li>`).join('')}</ul>
-      <div class="links"><button type="button" id="zoomHere">Zoom to the ground</button>${c.website?`<a href="${esc(c.website)}" target="_blank" rel="noopener">Club website</a>`:''}</div></article>`;
+    if(!inRegion(c)){region=NA(c)?'na':'eu';paintRegion();league='all';drawChips();FCW.dimLeague(map,league)}
+    selected=c;map.select(c.espn_id);
+    $('#entry').innerHTML=`<article class="entry">${FCW.photoHTML(c)}${FCW.headHTML(D,c,'h1')}
+      <p class="honours"><b>Honours</b> ${FCW.honours(D,c)}</p>
+      ${FCW.factsHTML(D,c)}
+      <h2 class="sec">Next match</h2>${FCW.nextHTML(D,c)}
+      <h2 class="sec">Nearest grounds</h2>${FCW.nearHTML(D,c,false)}
+      <div class="btns"><a class="pri" href="/club/#c${c.espn_id}">Open club page</a><button type="button" id="zoomHere">Zoom to the ground</button>${c.website?`<a href="${esc(c.website)}" target="_blank" rel="noopener">Club website</a>`:''}</div></article>`;
     $('#entry').querySelectorAll('.near button').forEach(b=>b.onclick=()=>select(byId[b.dataset.id],true));
     $('#zoomHere').onclick=()=>map.flyTo({center:[c.lon,c.lat],zoom:15.5,duration:still?0:1200});
     try{history.replaceState(null,'','#c'+c.espn_id)}catch(e){}
     if(fly)map.flyTo({center:[c.lon,c.lat],zoom:Math.max(map.getZoom(),11),duration:still?0:1000});
   }
+  FCW.attachSearch(D,$('#q'),$('#results'),undefined,c=>select(c,true));
 
-  // ---------- search ----------
-  const q=$('#q'),res=$('#results');
-  q.addEventListener('input',()=>{const t=q.value.trim().toLowerCase();if(!t){res.hidden=true;return}
-    const hits=clubs.filter(c=>[c.name,c.stadium,c.city].some(x=>String(x||'').toLowerCase().includes(t))).slice(0,8);
-    res.innerHTML=hits.length?hits.map(c=>`<li><button type="button" data-id="${c.espn_id}"><img src="/img/crests/${c.espn_id}.png" alt="">${esc(c.name)}<small>${esc(c.stadium)}</small></button></li>`).join(''):'<li class="none">No club, ground or city matches that.</li>';
-    res.hidden=false;res.querySelectorAll('button').forEach(b=>b.onclick=()=>{res.hidden=true;q.value='';select(byId[b.dataset.id],true)})});
-  q.addEventListener('keydown',e=>{if(e.key==='Escape'){res.hidden=true;q.value=''}});
-
-  // ---------- start ----------
   const fromHash=(location.hash.match(/^#c(\d+)$/)||[])[1];
   const start=byId[fromHash]||clubs.find(c=>c.name==='Manchester United')||clubs[0];
-  region=NA(start)?'na':'eu';$('#rEU').setAttribute('aria-pressed',String(region==='eu'));$('#rNA').setAttribute('aria-pressed',String(region==='na'));
-  drawChips();
+  region=NA(start)?'na':'eu';paintRegion();drawChips();
   map.once('load',()=>fit(clubs.filter(inRegion),true));
   select(start,false);
+  // next matches from ESPN for the open club
+  FCW.refreshTeam(D,start.espn_id).then(()=>{if(selected===start)select(start,false)}).catch(()=>{});
 })().catch(e=>{document.getElementById('entry').innerHTML='<p class="empty">The map didn’t load. Check your connection and reload the page.</p>';console.error(e)});
+FCW.registerSW();
 </script>
 </body>
 </html>
