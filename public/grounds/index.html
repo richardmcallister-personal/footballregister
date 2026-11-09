@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Grounds · footballclub.wiki</title>
-<meta name="description" content="Every ground on one map: 358 clubs in Europe and the Americas, with each club's crest as its marker.">
+<meta name="description" content="Every ground on one map: 400 clubs in Europe and the Americas with each club's crest as its marker, and the national stadia of 211 FIFA members.">
 <meta name="theme-color" content="#F8F6F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -32,20 +32,20 @@ aside{min-width:0}
   </div>
 </div></header>
 <div class="bar"><div class="wrap">
-  <div class="seg" role="group" aria-label="Region"><button id="rEU" type="button" aria-pressed="true">Europe</button><button id="rNA" type="button" aria-pressed="false">Americas</button></div>
+  <div class="seg" role="group" aria-label="Region"><button id="rEU" type="button" aria-pressed="true">Europe</button><button id="rNA" type="button" aria-pressed="false">Americas</button><button id="rNT" type="button" aria-pressed="false">National stadia</button></div>
   <div class="chips" id="chips" role="group" aria-label="League"></div>
 </div></div>
 <main><div class="wrap">
   <section class="plate" aria-label="Map of grounds">
-    <div class="map" id="map" role="region" aria-label="Map of grounds with club crests as markers"></div>
+    <div class="map" id="map" role="region" aria-label="Map of grounds with club crests and national flags as markers"></div>
     <div class="hint" id="hint">Drag to move · scroll or pinch to zoom · tap a crest</div>
   </section>
   <aside>
-    <div class="search"><label for="q" class="sr">Find a club, ground or city</label>
-      <input id="q" type="search" placeholder="Find a club, ground or city" autocomplete="off">
+    <div class="search"><label for="q" class="sr">Find a club, nation, ground or city</label>
+      <input id="q" type="search" placeholder="Find a club, nation, ground or city" autocomplete="off">
       <ul class="results" id="results" hidden></ul></div>
-    <div id="entry"><p class="empty">Loading 358 grounds…</p></div>
-    <p class="note" style="margin-top:20px">Map tiles from OpenFreeMap, data © OpenStreetMap contributors. Next matches from ESPN when it can be reached, otherwise the daily snapshot.</p>
+    <div id="entry"><p class="empty">Loading the grounds…</p></div>
+    <p class="note" style="margin-top:20px">Map tiles from OpenFreeMap, data © OpenStreetMap contributors. Next matches from ESPN when it can be reached, otherwise the daily snapshot. National stadia are each nation's home ground as recorded on Wikipedia; nations that rotate venues are placed at the country.</p>
   </aside>
 </div></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
@@ -56,22 +56,35 @@ aside{min-width:0}
   const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let map;
   FCW.initTheme(()=>map&&map.retheme());
-  const D=await FCW.load();
+  const [D,ND]=await Promise.all([FCW.load(),FCW.loadNations().catch(()=>null)]);
   const clubs=D.clubs.filter(c=>c.lat!=null&&c.lon!=null),byId=D.byId,L=D.L;
+  const nations=ND?ND.nations.filter(n=>n.lat!=null):[];
   const NA=c=>FCW.region(D,c.league)!=='eu';
   let region='eu',league='all',selected=null;
   const inRegion=c=>region==='na'?NA(c):!NA(c);
+  const isNation=x=>x&&/^n\d/.test(String(x.id||''));
 
   function drawChips(){
     const chips=$('#chips');chips.innerHTML='';
+    if(region==='nt'){
+      ['all',...FCW.CONFS.map(c=>c[0])].forEach(k=>{
+        const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(league===k));
+        b.innerHTML=esc(k==='all'?'All':k)+'<b>'+nations.filter(n=>k==='all'||n.conf===k).length+'</b>';
+        b.onclick=()=>{league=k;drawChips();FCW.dimConf(map,league);fitN(nations.filter(n=>k==='all'||n.conf===k))};
+        chips.appendChild(b)});
+      return;
+    }
     ['all',...FCW.ORDER.filter(k=>region==='na'?FCW.region(D,k)!=='eu':FCW.region(D,k)==='eu')].forEach(k=>{
       const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(league===k));
       b.innerHTML=esc(k==='all'?'All':L[k].name)+'<b>'+clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)).length+'</b>';
       b.onclick=()=>{league=k;drawChips();FCW.dimLeague(map,league);fit(clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)))};
       chips.appendChild(b)});
   }
-  await FCW.loadCrests(clubs);
-  map=FCW.makeMap('map',{clubs,onClick:id=>select(byId[id],false),onReady:()=>FCW.dimLeague(map,league)});
+  await Promise.all([FCW.loadCrests(clubs),nations.length?FCW.loadFlags(nations):0]);
+  map=FCW.makeMap('map',{clubs,nations,scale:.9,labelsFrom:4,
+    addLayers:(m,o)=>{FCW.addClubLayers(m,o);if(nations.length)FCW.addNationLayers(m,{...o,labelsFrom:4,onClick:id=>select(ND.byId[id],false)})},
+    onClick:id=>select(byId[id],false),
+    onReady:()=>{FCW.dimLeague(map,region==='nt'?'all':league);if(nations.length){FCW.dimConf(map,region==='nt'?league:'all');FCW.showNations(map,region==='nt')}}});
   map.once('movestart',()=>{$('#hint').hidden=true});
 
   const core=c=>NA(c)||c.lon>-11;
@@ -80,14 +93,37 @@ aside{min-width:0}
     const b=new maplibregl.LngLatBounds();list.forEach(c=>b.extend([c.lon,c.lat]));
     map.fitBounds(b,{padding:40,maxZoom:12,duration:instant||still?0:900});
   }
-  function paintRegion(){$('#rEU').setAttribute('aria-pressed',String(region==='eu'));$('#rNA').setAttribute('aria-pressed',String(region==='na'))}
-  function setRegion(r){region=r;paintRegion();league='all';drawChips();FCW.dimLeague(map,league);fit(clubs.filter(inRegion))}
-  $('#rEU').onclick=()=>setRegion('eu');$('#rNA').onclick=()=>setRegion('na');
+  function fitN(list,instant){
+    if(!list.length)return;
+    if(list.length>60){map.easeTo({center:[10,20],zoom:1.3,duration:instant||still?0:900});return}
+    const b=new maplibregl.LngLatBounds();list.forEach(n=>b.extend([n.lon,n.lat]));
+    map.fitBounds(b,{padding:40,maxZoom:6,duration:instant||still?0:900});
+  }
+  function paintRegion(){for(const [id,r] of [['#rEU','eu'],['#rNA','na'],['#rNT','nt']])$(id).setAttribute('aria-pressed',String(region===r))}
+  function setRegion(r){region=r;paintRegion();league='all';drawChips();
+    FCW.showNations(map,r==='nt');
+    if(r==='nt'){FCW.dimConf(map,'all');fitN(nations)}else{FCW.dimLeague(map,league);fit(clubs.filter(inRegion))}}
+  $('#rEU').onclick=()=>setRegion('eu');$('#rNA').onclick=()=>setRegion('na');$('#rNT').onclick=()=>setRegion('nt');
+  if(!nations.length)$('#rNT').hidden=true;
 
   function select(c,fly){
     if(!c)return;
-    if(!inRegion(c)){region=NA(c)?'na':'eu';paintRegion();league='all';drawChips();FCW.dimLeague(map,league)}
-    selected=c;map.select(c.espn_id);
+    if(isNation(c)){
+      if(region!=='nt'){region='nt';paintRegion();league='all';drawChips();FCW.showNations(map,true);FCW.dimConf(map,'all')}
+      selected=c;map.select(c.id,'nations');
+      $('#entry').innerHTML=`<article class="entry">${FCW.nationPhotoHTML(c)}${FCW.nationHeadHTML(ND,c,'h1')}
+        <p class="honours"><b>Honours</b> ${FCW.nationHonours(c)}</p>
+        ${FCW.nationFactsHTML(ND,c)}
+        <h2 class="sec">Next match</h2>${FCW.nationNextHTML(ND,c)}
+        <div class="btns"><a class="pri" href="/nation/#${c.id}">Open nation page</a><button type="button" id="zoomHere">${c.pin==='stadium'?'Zoom to the ground':'Zoom in'}</button></div></article>`;
+      $('#zoomHere').onclick=()=>map.flyTo({center:[c.lon,c.lat],zoom:c.pin==='stadium'?15.5:6,duration:still?0:1200});
+      try{history.replaceState(null,'','#'+c.id)}catch(e){}
+      if(fly)map.flyTo({center:[c.lon,c.lat],zoom:Math.max(map.getZoom(),c.pin==='stadium'?11:5),duration:still?0:1000});
+      FCW.refreshNation(ND,c).then(()=>{if(selected===c)select(c,false)}).catch(()=>{});
+      return;
+    }
+    if(region==='nt'||!inRegion(c)){region=NA(c)?'na':'eu';paintRegion();league='all';drawChips();FCW.showNations(map,false);FCW.dimLeague(map,league)}
+    selected=c;map.select(c.espn_id,'clubs');
     $('#entry').innerHTML=`<article class="entry">${FCW.photoHTML(c)}${FCW.headHTML(D,c,'h1')}
       <p class="honours"><b>Honours</b> ${FCW.honours(D,c)}</p>
       ${FCW.factsHTML(D,c)}
@@ -99,15 +135,24 @@ aside{min-width:0}
     try{history.replaceState(null,'','#c'+c.espn_id)}catch(e){}
     if(fly)map.flyTo({center:[c.lon,c.lat],zoom:Math.max(map.getZoom(),11),duration:still?0:1000});
   }
-  FCW.attachSearch(D,$('#q'),$('#results'),undefined,c=>select(c,true));
+  // one search box over clubs and nations
+  const q=$('#q'),res=$('#results');
+  q.addEventListener('input',()=>{const t=q.value.trim().toLowerCase();if(!t){res.hidden=true;return}
+    const hc=D.clubs.filter(c=>[c.name,c.stadium,c.city,c.manager,c.captain].some(x=>String(x||'').toLowerCase().includes(t))).slice(0,6);
+    const hn=nations.filter(n=>[n.name,n.stadium,n.coach].some(x=>String(x||'').toLowerCase().includes(t))).slice(0,4);
+    res.innerHTML=(hc.length||hn.length)?hc.map(c=>`<li><a href="#c${c.espn_id}" data-c="${c.espn_id}"><img src="${FCW.crest(c)}" alt="">${esc(c.name)}<small>${esc(c.stadium)}</small></a></li>`).join('')
+      +hn.map(n=>`<li><a href="#${n.id}" data-n="${n.id}"><img class="flag" src="${FCW.flag(n)}" alt="">${esc(n.name)}<small>${esc(n.stadium||'national side')}</small></a></li>`).join(''):'<li class="none">No club, nation, ground or city matches that.</li>';
+    res.hidden=false;
+    res.querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();res.hidden=true;q.value='';select(a.dataset.c?byId[a.dataset.c]:ND.byId[a.dataset.n],true)});});
+  q.addEventListener('keydown',e=>{if(e.key==='Escape'){res.hidden=true;q.value=''}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))res.hidden=true});
 
-  const fromHash=(location.hash.match(/^#c(\d+)$/)||[])[1];
-  const start=byId[fromHash]||clubs.find(c=>c.name==='Manchester United')||clubs[0];
-  region=NA(start)?'na':'eu';paintRegion();drawChips();
-  map.once('load',()=>fit(clubs.filter(inRegion),true));
+  const h=location.hash;
+  const start=(h.match(/^#c(\d+)$/)&&byId[h.slice(2)])||(h.match(/^#n\d+$/)&&ND&&ND.byId[h.slice(1)])||clubs.find(c=>c.name==='Manchester United')||clubs[0];
+  region=isNation(start)?'nt':(NA(start)?'na':'eu');paintRegion();drawChips();
+  map.once('load',()=>{if(region==='nt')fitN(nations,true);else fit(clubs.filter(inRegion),true)});
   select(start,false);
-  // next matches from ESPN for the open club
-  FCW.refreshTeam(D,start.espn_id).then(()=>{if(selected===start)select(start,false)}).catch(()=>{});
+  if(!isNation(start))FCW.refreshTeam(D,start.espn_id).then(()=>{if(selected===start)select(start,false)}).catch(()=>{});
 })().catch(e=>{document.getElementById('entry').innerHTML='<p class="empty">The map didn’t load. Check your connection and reload the page.</p>';console.error(e)});
 FCW.registerSW();
 </script>

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>footballclub.wiki</title>
-<meta name="description" content="Every club, every ground. 358 clubs across nineteen leagues in Europe and the Americas: league tables, honours, stadiums, managers, squads and next fixtures, with every ground on a map.">
+<meta name="description" content="Every club, every ground. 400 clubs across twenty-two leagues in Europe and the Americas, plus every national team: league tables, honours, stadiums, managers, squads and next fixtures, with every ground on a map.">
 <link rel="canonical" href="https://footballclub.wiki/">
 <meta property="og:title" content="footballclub.wiki">
-<meta property="og:description" content="Every club. Every ground. Tables, honours, stadiums, squads and fixtures for 358 clubs in Europe and the Americas.">
+<meta property="og:description" content="Every club. Every ground. Tables, honours, stadiums, squads and fixtures for 400 clubs in Europe and the Americas, and all 211 national teams.">
 <meta property="og:image" content="https://footballclub.wiki/og-image.png">
 <meta property="og:url" content="https://footballclub.wiki/">
 <meta name="twitter:card" content="summary_large_image">
@@ -112,7 +112,7 @@ table.ref td.grd{max-width:16ch;overflow:hidden;text-overflow:ellipsis}
       const lead=top.map(r=>D.byId[r.id]).filter(Boolean);
       return {k,lead,pts:top[0]&&top[0].pts,p:top[0]&&top[0].p,n:clubsIn(k).length}});
     $('#page').innerHTML=`<h1 class="title">The leagues</h1>
-      <p class="dek">${D.clubs.length} clubs in nineteen leagues, from the Premier League to the Brasileirão. Open a league for its table; every club has a page with its honours, ground and squad.</p>
+      <p class="dek">${D.clubs.length} clubs in twenty-two leagues, from the Premier League to the Brasileirão. Open a league for its table; every club has a page with its honours, ground and squad.</p>
       <div class="tw"><table class="ref"><thead><tr><th>League</th><th class="wide">Country</th><th class="n">Clubs</th><th>Leading</th><th class="n">Pts</th><th class="n wide">P</th></tr></thead><tbody>
       ${rows.map(r=>`<tr data-href="#${FCW.slug(r.k)}" tabindex="0"><td><a class="lg" href="#${FCW.slug(r.k)}">${esc(L[r.k].name)}</a></td><td class="wide mute">${esc(L[r.k].country||'')}</td><td class="n">${r.n}</td>
         <td>${r.lead.map(c=>`<a class="club" href="/club/#c${c.espn_id}"><img src="${FCW.crest(c)}" alt=""><span>${esc(c.name)}</span></a>`).join(' · ')||'<span class="mute">—</span>'}</td>

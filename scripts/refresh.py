@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Refresh public/data/snapshot.json and public/data/rosters.json from ESPN's public soccer feed.
+"""Refresh public/data/snapshot.json, rosters.json and nations_live.json from ESPN's public soccer feed
+(and the FIFA ranking as kept on Wikipedia).
 
 Run daily by .github/workflows/refresh.yml. The League of Ireland is not carried by ESPN,
 so its table/fixtures come from scripts/irl_static.json (edit by hand or extend this script).
@@ -10,7 +11,7 @@ import json, re, sys, time, datetime, pathlib, urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PUB = ROOT / "public" / "data"
 BASE = "https://site.api.espn.com/apis"
-ESPN_LEAGUES = ["eng.1", "eng.2", "esp.1", "ita.1", "ger.1", "ger.2", "fra.1", "ned.1", "sco.1", "swe.1", "den.1", "por.1", "bel.1", "tur.1", "usa.1", "mex.1", "bra.1", "arg.1"]
+ESPN_LEAGUES = ["eng.1", "eng.2", "esp.1", "ita.1", "ger.1", "ger.2", "fra.1", "ned.1", "sco.1", "swe.1", "den.1", "por.1", "bel.1", "tur.1", "aut.1", "gre.1", "nor.1", "usa.1", "mex.1", "bra.1", "arg.1"]
 POS = {"Goalkeeper": "GK", "Defender": "DF", "Midfielder": "MF", "Forward": "FW", "Attacker": "FW"}
 
 
@@ -23,6 +24,65 @@ def get(url, tries=4):
             print("retry", url, e, file=sys.stderr)
             time.sleep(3 * (i + 1))
     return None
+
+
+RANK_ALIAS = {"USA": "United States", "IR Iran": "Iran", "Côte d'Ivoire": "Ivory Coast", "Korea Republic": "South Korea",
+    "Bosnia and Herzegovina": "Bosnia-Herzegovina", "Cabo Verde": "Cape Verde", "China PR": "China", "The Gambia": "Gambia",
+    "Korea DPR": "North Korea", "St Kitts and Nevis": "St. Kitts and Nevis", "Hong Kong, China": "Hong Kong", "St Lucia": "St. Lucia",
+    "St Vincent and the Grenadines": "St. Vincent and the Grenadines", "São Tomé and Príncipe": "Sao Tome and Principe"}
+
+
+def fifa_ranking():
+    """The FIFA men's ranking as transcribed on Wikipedia (Module:SportsRankings/data/FIFA World Rankings)."""
+    url = ("https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&rvslots=main&format=json&formatversion=2"
+           "&titles=Module:SportsRankings/data/FIFA_World_Rankings")
+    req = urllib.request.Request(url, headers={"User-Agent": "footballclubwiki-bot/1.0 (https://footballclub.wiki)"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            lua = json.load(r)["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
+    except Exception as e:  # noqa: BLE001
+        print("ranking unavailable:", e, file=sys.stderr)
+        return None
+    m = re.search(r"data\.updated\s*=\s*\{[^}]*day\s*=\s*(\d+)[^}]*month\s*=\s*'(\w+)'[^}]*year\s*=\s*(\d+)", lua)
+    updated = f"{m.group(1)} {m.group(2)} {m.group(3)}" if m else None
+    rows = {}
+    for name, rank, move, pts in re.findall(r'\{\s*"([^"]+)"\s*,\s*(\d+)\s*,\s*(-?\d+)\s*,\s*([\d.]+)\s*\}', lua):
+        rows[RANK_ALIAS.get(name, name)] = [int(rank), int(move), float(pts)]
+    return {"updated": updated, "rows": rows} if rows else None
+
+
+def nations():
+    """Next match and competitions for every national team in nations.json, plus the FIFA ranking."""
+    path = PUB / "nations.json"
+    if not path.exists():
+        return
+    old = json.load(open(PUB / "nations_live.json")) if (PUB / "nations_live.json").exists() else {}
+    live = {"generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "ranking": old.get("ranking"), "teams": dict(old.get("teams", {}))}
+    rk = fifa_ranking()
+    if rk:
+        live["ranking"] = rk
+    for n in json.load(open(path))["nations"]:
+        tid = n["espn_id"]
+        s = get(f"{BASE}/site/v2/sports/soccer/all/teams/{tid}/schedule?fixture=true")
+        if s is None:
+            continue
+        comps, nxt = [], None
+        for ev in s.get("events", []):
+            lg = (ev.get("league") or {}).get("name")
+            if lg and lg not in comps:
+                comps.append(lg)
+            comp = ev["competitions"][0]
+            if nxt is None and comp["status"]["type"]["state"] == "pre":
+                home = next(x for x in comp["competitors"] if x["homeAway"] == "home")
+                away = next(x for x in comp["competitors"] if x["homeAway"] == "away")
+                nxt = {"date": ev["date"], "home": home["team"]["displayName"], "away": away["team"]["displayName"],
+                       "home_id": home["team"]["id"], "away_id": away["team"]["id"], "comp": lg,
+                       "venue": (comp.get("venue") or {}).get("fullName")}
+        live["teams"][tid] = {"competitions": comps, "next": nxt}
+        time.sleep(0.2)
+    json.dump(live, open(PUB / "nations_live.json", "w"), ensure_ascii=False)
+    print("nations refreshed:", len(live["teams"]), "ranking:", (live.get("ranking") or {}).get("updated"))
 
 
 def main():
@@ -98,6 +158,7 @@ def main():
     json.dump(snap, open(PUB / "snapshot.json", "w"), ensure_ascii=False)
     json.dump(rosters, open(PUB / "rosters.json", "w"), ensure_ascii=False)
     print("refreshed", snap["generated"], "teams:", len(snap["teams"]), "rosters:", len(rosters))
+    nations()
 
 
 if __name__ == "__main__":

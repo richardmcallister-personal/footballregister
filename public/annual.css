@@ -194,8 +194,8 @@ footer.colophon b{color:var(--ink)}
 .fixtures.nat img{width:42px;height:28px}
 .cover .cc.flag img{width:120px;height:80px;object-fit:cover;border:2px solid rgba(255,255,255,.7);filter:drop-shadow(0 3px 8px rgba(0,0,0,.45));background:#fff}
 .nation-cover.bare{height:auto;min-height:0;background:var(--acc);color:var(--acc-ink)}
-.nation-cover .cv{position:static;padding-block:26px}
-.nation-cover p{color:inherit;opacity:.85}
+.nation-cover.bare .cv{position:static;padding-block:26px}
+.nation-cover.bare p{color:inherit;opacity:.85}
 .mv{font-family:var(--ui);font-size:12.5px;font-weight:800;color:var(--mute)}
 .mv.up{color:var(--up)}.mv.down{color:var(--warn)}
 .record{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14.5px}

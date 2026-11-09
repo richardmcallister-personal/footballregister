@@ -169,7 +169,7 @@ table.ref.mini td.last{color:var(--mute);font-size:12.5px}
           ${h2hHTML()}
           <h2 class="sec">${n.pin==='stadium'?'Home ground':'Where they are'}</h2>
           <section class="plate" aria-label="Map"><div class="map" id="map" role="region" aria-label="Map of ${esc(n.stadium||n.name)} and neighbouring nations"></div></section>
-          ${n.stadium&&n.pin==='stadium'?`<p class="note">${esc(n.stadium)}. Flags mark neighbouring national sides.</p>`:'<p class="note">Flags mark national sides; this one has no single home ground on record.</p>'}
+          <p class="note">${n.stadium&&n.pin==='stadium'?esc(FCW.groundLine(n))+'. ':(n.venues?esc(FCW.groundLine(n))+'. ':'')}Flags mark national sides. <a href="/grounds/#${n.id}">See it on the grounds map</a></p>
         </div>
       </div>
       <div id="sq">${squadHTML()}</div>

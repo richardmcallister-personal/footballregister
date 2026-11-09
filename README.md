@@ -1,6 +1,6 @@
 # footballclub.wiki
 
-Every club, every ground, every nation. A static site: 358 clubs across nineteen leagues in Europe and the
+Every club, every ground, every nation. A static site: 400 clubs across twenty-two leagues in Europe and the
 Americas and all 211 FIFA national teams, with honours, stadiums, managers, captains, record holders, squads,
 standings, the FIFA ranking, head-to-head records, next fixtures and the 2026 World Cup.
 

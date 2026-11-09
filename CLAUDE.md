@@ -1,6 +1,6 @@
 # footballclub.wiki
 
-Static site: 358 clubs across nineteen leagues in Europe and the Americas, plus all 211 FIFA national teams.
+Static site: 400 clubs across twenty-two leagues in Europe and the Americas, plus all 211 FIFA national teams.
 Pages: Leagues (`index.html`), Club (`club/`, `#c<espn_id>`), Grounds (`grounds/`), Nations (`nations/`, `#uefa` etc.),
 Nation (`nation/`, `#n<espn_id>`) and World Cup 2026 (`worldcup/`), sharing `annual.css` and `annual.js` (theme, data,
 live ESPN layer, maps, nation helpers). See README.md for the file layout and data model. This file covers how the
