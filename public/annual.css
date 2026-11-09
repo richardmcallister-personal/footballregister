@@ -185,3 +185,21 @@ footer.colophon b{color:var(--ink)}
   .chips a,.chips button{flex:none}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* nations: flags are landscape, so they get their own frame where crests are round */
+.flagimg,.head.nat img,.fixtures.nat img,.results .flag,.club.nat img,table.ref .club.nat img{width:auto;aspect-ratio:3/2;object-fit:cover;border:1px solid var(--border);background:#fff}
+.head.nat img{width:66px;height:44px}
+.club.nat img{width:27px;height:18px}
+.results .flag,.near.nat img{width:27px;height:18px}
+.fixtures.nat img{width:42px;height:28px}
+.cover .cc.flag img{width:120px;height:80px;object-fit:cover;border:2px solid rgba(255,255,255,.7);filter:drop-shadow(0 3px 8px rgba(0,0,0,.45));background:#fff}
+.nation-cover.bare{height:auto;min-height:0;background:var(--acc);color:var(--acc-ink)}
+.nation-cover .cv{position:static;padding-block:26px}
+.nation-cover p{color:inherit;opacity:.85}
+.mv{font-family:var(--ui);font-size:12.5px;font-weight:800;color:var(--mute)}
+.mv.up{color:var(--up)}.mv.down{color:var(--warn)}
+.record{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14.5px}
+.record th{font-size:12px;font-weight:800;color:var(--mute);text-align:right;padding:4px 0 6px;border-bottom:2px solid var(--ink)}
+.record td{text-align:right;padding:7px 0;font-weight:700;font-size:17px;font-family:var(--display)}
+.record th:first-child,.record td:first-child{text-align:left}
+@media (max-width:900px){.cover .cc.flag img{width:72px;height:48px}}

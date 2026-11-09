@@ -21,6 +21,6 @@ jobs:
         run: |
           git config user.name "footballclub-bot"
           git config user.email "bot@footballclub.wiki"
-          git add public/data/snapshot.json public/data/rosters.json
+          git add public/data/snapshot.json public/data/rosters.json public/data/nations_live.json
           git diff --cached --quiet || git commit -m "data: daily refresh $(date -u +%Y-%m-%d)"
           git push

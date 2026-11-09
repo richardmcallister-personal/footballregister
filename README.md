@@ -1,8 +1,8 @@
 # footballclub.wiki
 
-Every club, every ground. A static site: 236 clubs across thirteen leagues in Europe and North America on an
-interactive globe, with honours, stadiums, managers, captains, record holders, squads,
-standings and next fixtures.
+Every club, every ground, every nation. A static site: 358 clubs across nineteen leagues in Europe and the
+Americas and all 211 FIFA national teams, with honours, stadiums, managers, captains, record holders, squads,
+standings, the FIFA ranking, head-to-head records, next fixtures and the 2026 World Cup.
 
 ## Layout
 
@@ -15,8 +15,15 @@ public/            the site — deploy this folder as-is
   data/snapshot.json  standings, next fixtures, competitions (refreshed daily)
   data/rosters.json   squads (refreshed daily)
   data/flags.json     nationality → flag emoji
+  data/nations.json   211 national teams: ranking, honours, coach, captain, records, ground, coordinates
+  data/nations_live.json  national next matches/competitions + FIFA ranking (refreshed daily)
+  data/nation_squads.json latest squads from Wikipedia, with club_id links into the club register
+  data/h2h.json       head-to-head among FIFA members [P,W,D,L,GF,GA,last date,last score,tournament]
+  data/worldcup2026.json  groups, bracket and results of the 2026 World Cup
+  nations/ nation/ worldcup/  the national-team pages (#uefa…, #n<espn_id>)
+  img/flags/          n<espn_id>.png flags (ESPN)
   data/world.json     1:50m basemap (TopoJSON), used only by the canvas fallback
-  img/crests/  img/grounds/
+  img/crests/  img/grounds/  img/flags/
 scripts/refresh.py      re-snapshots ESPN; League of Ireland from scripts/irl_static.json
 .github/workflows/refresh.yml   runs the refresh daily and commits
 ```

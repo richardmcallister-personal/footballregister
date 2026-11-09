@@ -5,8 +5,10 @@ const root=document.documentElement;
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const fmt=n=>n==null||n===''?'—':Number(n).toLocaleString('en-GB');
 FCW.esc=esc;FCW.fmt=fmt;
-FCW.ORDER=['eng.1','eng.2','esp.1','ita.1','ger.1','fra.1','por.1','tur.1','sco.1','den.1','swe.1','irl.1','usa.1'];
-FCW.RELEG={'eng.1':3,'eng.2':3,'tur.1':3,'esp.1':3,'ita.1':3,'ger.1':2,'fra.1':2,'sco.1':1,'irl.1':1,'swe.1':1,'den.1':1,'por.1':2,'usa.1':0};
+FCW.ORDER=['eng.1','eng.2','esp.1','ita.1','ger.1','ger.2','fra.1','ned.1','por.1','bel.1','tur.1','sco.1','den.1','swe.1','irl.1','usa.1','mex.1','bra.1','arg.1'];
+FCW.RELEG={'eng.1':3,'eng.2':3,'tur.1':3,'esp.1':3,'ita.1':3,'ger.1':2,'fra.1':2,'sco.1':1,'irl.1':1,'swe.1':1,'den.1':1,'por.1':2,'usa.1':0,'ger.2':2,'ned.1':1,'bel.1':1,'mex.1':0,'bra.1':4,'arg.1':0};
+FCW.region=(D,k)=>(D.L[k]&&D.L[k].region)||'eu';
+FCW.confLabel=cf=>/^(Eastern|Western)$/.test(cf)?cf+' Conference':cf;
 FCW.slug=k=>k.replace('.','-');           // eng.1 -> eng-1 (safe in a URL hash)
 FCW.unslug=s=>s.replace('-','.');
 
@@ -41,13 +43,13 @@ FCW.load=async function(extra=[]){
 FCW.crest=c=>'/img/crests/'+c.espn_id+'.png';
 FCW.rankOf=(D,c)=>(D.live.standings[c.league]||[]).find(r=>r.id===c.espn_id)||null;
 FCW.teamLive=(D,c)=>D.live.teams[c.espn_id]||{competitions:[],next:null};
-FCW.shortComp=n=>String(n||'').replace('English League Championship','Championship').replace('Turkish Super Lig','Süper Lig').replace('Turkish Cup','Türkiye Kupası').replace('Turkish ','').replace('Danish ','').replace('Portuguese ','').replace('CONCACAF ','').replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');
+FCW.shortComp=n=>String(n||'').replace('Mexican Liga BBVA MX','Liga MX').replace('Brazilian Serie A','Brasileirão').replace('Argentine Liga Profesional de Fútbol','Liga Profesional').replace('German 2. Bundesliga','2. Bundesliga').replace('Dutch ','').replace('Belgian ','').replace('Mexican ','').replace('Brazilian ','').replace('Argentine ','').replace('CONMEBOL ','').replace('English League Championship','Championship').replace('Turkish Super Lig','Süper Lig').replace('Turkish Cup','Türkiye Kupası').replace('Turkish ','').replace('Danish ','').replace('Portuguese ','').replace('CONCACAF ','').replace('Scottish ','').replace('Swedish ','').replace('League of Ireland ','LOI ').replace('English ','').replace('Spanish ','').replace('Italian ','').replace('German ','').replace('French ','').replace('LALIGA','La Liga').replace('UEFA ','').replace('German Cup','DFB-Pokal');
 FCW.fmtDate=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
 FCW.ord=n=>n+(n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th');
 const R=Math.PI/180;
 FCW.dist=(a,b)=>{const dp=(b.lat-a.lat)*R,dl=(b.lon-a.lon)*R;const h=Math.sin(dp/2)**2+Math.cos(a.lat*R)*Math.cos(b.lat*R)*Math.sin(dl/2)**2;return 12742*Math.asin(Math.sqrt(h))};
 FCW.km=k=>k<10?k.toFixed(1):String(Math.round(k));
-FCW.nearest=(D,c,n=4)=>D.clubs.filter(d=>d!==c&&d.lat!=null&&(d.league==='usa.1')===(c.league==='usa.1')).map(d=>[FCW.dist(c,d),d]).sort((a,b)=>a[0]-b[0]).slice(0,n);
+FCW.nearest=(D,c,n=4)=>D.clubs.filter(d=>d!==c&&d.lat!=null&&FCW.region(D,d.league)===FCW.region(D,c.league)).map(d=>[FCW.dist(c,d),d]).sort((a,b)=>a[0]-b[0]).slice(0,n);
 
 // ---------- live layer (ESPN public feed); the snapshot stands when it can't be reached ----------
 const BASE='https://site.api.espn.com/apis';
@@ -90,6 +92,10 @@ FCW.honours=function(D,c){
   if(c.league==='usa.1'){
     if(c.league_titles)p.push('MLS Cup '+c.league_titles);if(c.supporters_shield)p.push('Supporters’ Shield '+c.supporters_shield);
     if(c.cup_wins)p.push(esc(c.cup_name)+' '+c.cup_wins);if(c.ucl)p.push('CONCACAF Champions Cup '+c.ucl);
+  }else if(D.L[c.league].cont_long){
+    const CL=D.L[c.league].cont_long,lab=D.L[c.league].titles_label||'League';
+    if(c.league_titles)p.push(lab+' '+c.league_titles);if(c.cup_wins)p.push(esc(c.cup_name)+' '+c.cup_wins);
+    if(c.ucl)p.push(CL[0].replace(/^the /,'')+' '+c.ucl);if(c.uel)p.push(CL[1].replace(/^the /,'')+' '+c.uel);
   }else{
     const lab=D.L[c.league].titles_label||'League';
     if(c.league_titles)p.push(lab+' '+c.league_titles);if(c.cup_wins)p.push(esc(c.cup_name)+' '+c.cup_wins);
@@ -101,7 +107,7 @@ const row=(t,v)=>v?`<div><dt>${t}</dt><dd>${v}</dd></div>`:'';
 FCW.factsHTML=function(D,c){
   const r=FCW.rankOf(D,c);
   return `<dl class="facts">
-    ${r?row('Position',`${FCW.ord(r.rank)}${r.conf?' in the '+esc(r.conf)+' Conference':''} · ${esc(r.pts)} pts from ${esc(r.p)}`):''}
+    ${r?row('Position',`${FCW.ord(r.rank)}${r.conf?' in the '+esc(FCW.confLabel(r.conf)):''} · ${esc(r.pts)} pts from ${esc(r.p)}`):''}
     ${row('Ground',esc(c.stadium)+(c.capacity?', '+fmt(c.capacity):''))}
     ${row('Manager',esc(c.manager))}${row('Captain',esc(c.captain))}
     ${row('Record scorer',c.record_scorer?esc(c.record_scorer)+(c.record_scorer_goals?', '+c.record_scorer_goals:''):'')}
@@ -232,19 +238,141 @@ FCW.dimLeague=function(map,league){
   map.setPaintProperty('club-halo','circle-stroke-opacity',['case',on,1,.16]);
 };
 FCW.makeMap=function(el,opts){
-  const map=new maplibregl.Map({container:el,style:FCW.mapStyle(),center:opts.center||[8,50],zoom:opts.zoom||3.6,minZoom:2,maxZoom:18,
+  const map=new maplibregl.Map({container:el,style:FCW.mapStyle(),center:opts.center||[8,50],zoom:opts.zoom||3.6,minZoom:opts.minZoom||2,maxZoom:18,
     attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false,cooperativeGestures:!!opts.cooperative});
   map.touchZoomRotate.disableRotation();
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   if(opts.scaleBar!==false)map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');
-  let sel=null;
-  const ready=()=>{FCW.restyle(map);FCW.addClubLayers(map,opts);if(opts.onReady)opts.onReady();if(sel)map.setFeatureState({source:'clubs',id:sel},{sel:true})};
+  let sel=null;const src=opts.source||'clubs',add=opts.addLayers||FCW.addClubLayers;
+  const ready=()=>{FCW.restyle(map);add(map,opts);if(opts.onReady)opts.onReady();if(sel)map.setFeatureState({source:src,id:sel},{sel:true})};
   map.on('style.load',ready);if(map.style&&map.style._loaded)ready();map.once('idle',ready);
-  map.select=id=>{if(!map.getSource('clubs')){sel=id;return}if(sel)map.setFeatureState({source:'clubs',id:sel},{sel:false});sel=id;if(id)map.setFeatureState({source:'clubs',id},{sel:true})};
+  map.select=id=>{if(!map.getSource(src)){sel=id;return}if(sel)map.setFeatureState({source:src,id:sel},{sel:false});sel=id;if(id)map.setFeatureState({source:src,id},{sel:true})};
   map.once('load',()=>{const a=map.getContainer().querySelector('.maplibregl-ctrl-attrib');if(a)a.classList.remove('maplibregl-compact-show')});
   map.retheme=()=>map.setStyle(FCW.mapStyle());
   return map;
 };
+
+// ---------- nations: every FIFA member, the ranking, the record, the squad ----------
+FCW.CONFS=[['UEFA','Europe'],['CONMEBOL','South America'],['CONCACAF','North and Central America'],['CAF','Africa'],['AFC','Asia'],['OFC','Oceania']];
+FCW.confName=k=>(FCW.CONFS.find(c=>c[0]===k)||[k,k])[1];
+// extra: 'nation_squads' | 'h2h' | 'worldcup2026' | 'clubs' (clubs come with the crest paths the squads link to)
+FCW.loadNations=async function(extra=[]){
+  const get=f=>fetch('/data/'+f+'.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});
+  const [N,live,...rest]=await Promise.all([get('nations'),get('nations_live').catch(()=>null),...extra.map(f=>get(f).catch(()=>null))]);
+  const D={nations:N.nations,rankingUpdated:N.ranking_updated};
+  extra.forEach((f,i)=>D[f]=rest[i]);
+  if(D.clubs){D.L=D.clubs.leagues;D.clubs=D.clubs.clubs;D.clubById=Object.fromEntries(D.clubs.map(c=>[c.espn_id,c]))}
+  D.byId=Object.fromEntries(D.nations.map(n=>[n.id,n]));D.byEspn=Object.fromEntries(D.nations.map(n=>[n.espn_id,n]));D.byName=Object.fromEntries(D.nations.map(n=>[n.name,n]));
+  D.live={teams:{...((live&&live.teams)||{})},mode:'snapshot',at:(live&&live.generated)||new Date().toISOString()};
+  const rk=live&&live.ranking;
+  if(rk&&rk.rows){D.rankingUpdated=rk.updated||D.rankingUpdated;for(const n of D.nations){const r=rk.rows[n.name];if(r){n.rank=r[0];n.rank_move=r[1];n.rank_pts=r[2]}}}
+  D.nations.sort((a,b)=>(a.rank||999)-(b.rank||999)||a.name.localeCompare(b.name));
+  return D;
+};
+FCW.flag=n=>'/img/flags/'+n.id+'.png';
+FCW.nationLive=(D,n)=>D.live.teams[n.espn_id]||{competitions:[],next:null};
+FCW.refreshNation=async function(D,n){
+  const s=await j(`${BASE}/site/v2/sports/soccer/all/teams/${n.espn_id}/schedule?fixture=true`);
+  const comps=[];let next=null;
+  (s.events||[]).forEach(ev=>{const lg=ev.league&&ev.league.name;if(lg&&!comps.includes(lg))comps.push(lg);const c=ev.competitions[0];
+    if(!next&&c.status.type.state==='pre'){const h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');next={date:ev.date,home:h.team.displayName,away:a.team.displayName,home_id:h.team.id,away_id:a.team.id,comp:lg,venue:c.venue&&c.venue.fullName}}});
+  D.live.teams[n.espn_id]={competitions:comps,next};D.live.mode='live';D.live.at=new Date().toISOString();
+};
+FCW.move=m=>m==null?'':m>0?`<span class="mv up">▲${m}</span>`:m<0?`<span class="mv down">▼${-m}</span>`:'<span class="mv">—</span>';
+FCW.nationHonours=function(n){
+  const p=[];
+  if(n.wc.titles)p.push('World Cup '+n.wc.titles);
+  if(n.reg&&n.reg.titles)p.push(esc(n.reg.name)+' '+n.reg.titles);
+  if(n.reg2&&n.reg2.titles)p.push(esc(n.reg2.name)+' '+n.reg2.titles);
+  return p.length?p.join(' · '):'No World Cup or continental title yet';
+};
+FCW.nationFactsHTML=function(D,n){
+  const rank=n.rank?`${FCW.ord(n.rank)} ${FCW.move(n.rank_move)}${n.rank_pts?' · '+n.rank_pts.toFixed(0)+' pts':''}`:'';
+  const span=n.fifa_max&&n.fifa_min?`Highest ${FCW.ord(n.fifa_max)}, lowest ${FCW.ord(n.fifa_min)}`:'';
+  const wc=n.wc.apps?`${n.wc.apps} ${n.wc.apps===1?'appearance':'appearances'}${n.wc.first?' since '+n.wc.first:''}${n.wc.best?' · '+esc(n.wc.best):''}`:'Never qualified';
+  const reg=n.reg?(n.reg.apps?`${n.reg.apps} ${n.reg.apps===1?'appearance':'appearances'}${n.reg.first?' since '+n.reg.first:''}${n.reg.best?' · '+esc(n.reg.best):''}`:(n.reg.best?esc(n.reg.best):'')):'';
+  return `<dl class="facts">
+    ${row('FIFA ranking',rank)}${row('Ranking range',span)}
+    ${row('Confederation',esc(n.conf)+(n.conf_long?' · '+esc(n.conf_long):''))}${row('Association',esc(n.assoc))}
+    ${row('Head coach',esc(n.coach))}${row('Captain',esc(n.captain))}
+    ${row('Most caps',n.most_caps?esc(n.most_caps)+(n.most_caps_n?', '+n.most_caps_n:''):'')}
+    ${row('Top scorer',n.top_scorer?esc(n.top_scorer)+(n.top_scorer_n?', '+n.top_scorer_n:''):'')}
+    ${row('Home ground',esc(n.stadium))}
+    ${row('World Cup',wc)}${n.reg?row(esc(n.reg.name),reg):''}${n.reg2&&n.reg2.best?row(esc(n.reg2.name),esc(n.reg2.best)):''}</dl>`;
+};
+FCW.nationNextHTML=function(D,n){
+  const x=FCW.nationLive(D,n).next;
+  if(!x)return `<div class="next"><b>No fixture scheduled</b></div>`;
+  const nm=(id,name)=>{const t=D.byEspn[id];return t?`<a href="/nation/#${t.id}">${esc(t.name)}</a>`:esc(name)};
+  return `<div class="next"><b>${nm(x.home_id,x.home)} v ${nm(x.away_id,x.away)}</b><span>${esc(FCW.fmtDate(x.date))}${x.venue?' · '+esc(x.venue):''}${x.comp?' · '+esc(FCW.shortComp(x.comp)):''}</span></div>`;
+};
+FCW.nationHeadHTML=(D,n,tag='h2')=>`<div class="head nat"><img src="${FCW.flag(n)}" alt=""><div><${tag}>${esc(n.name)}</${tag}><div class="sub">${esc(FCW.confName(n.conf))}${n.rank?' · FIFA ranking '+FCW.ord(n.rank):''}${n.nickname?' · '+esc(n.nickname):''}</div></div></div>`;
+FCW.nationCoverHTML=function(D,n){
+  const bits=[esc(n.conf)+(n.conf_long?' · '+esc(n.conf_long):''),n.rank?'FIFA ranking '+FCW.ord(n.rank):'',n.stadium&&n.pin==='stadium'?esc(n.stadium):''].filter(Boolean);
+  return `<section class="cover nation-cover bare" aria-label="${esc(n.name)}">
+    <div class="cv wrap"><span class="cc flag"><img src="${FCW.flag(n)}" alt=""></span>
+      <div class="ct"><h1>${esc(n.name)}</h1><p>${bits.join(' · ')}</p></div></div></section>`;
+};
+// upcoming internationals where both sides are in the register
+FCW.nationFixtures=function(D,list){
+  const now=Date.now(),seen=new Set(),out=[];
+  for(const n of (list||D.nations)){
+    const x=FCW.nationLive(D,n).next;if(!x)continue;
+    const t=new Date(x.date).getTime();if(!(t>now-2*3600e3))continue;
+    const h=D.byEspn[x.home_id],a=D.byEspn[x.away_id];if(!h||!a)continue;
+    const k=x.home_id+'-'+x.away_id+'-'+x.date;if(seen.has(k))continue;seen.add(k);
+    out.push({...x,t,h,a});
+  }
+  return out.sort((x,y)=>x.t-y.t);
+};
+FCW.nationFixturesHTML=function(D,list,title){
+  if(!list.length)return '';
+  const day=t=>new Date(t).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'}),tm=t=>new Date(t).toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return `<section class="fixtures nat wrap" aria-label="${esc(title)}"><h2 class="big">${esc(title)}</h2><ul>
+    ${list.map(f=>`<li><a href="/nation/#${f.h.id}"><img src="${FCW.flag(f.h)}" alt=""><span class="hn">${esc(f.h.name)}</span><time datetime="${esc(f.date)}" title="${esc(FCW.shortComp(f.comp||''))}"><b>${day(f.t)}</b>${tm(f.t)}</time><span class="an">${esc(f.a.name)}</span><img src="${FCW.flag(f.a)}" alt=""></a></li>`).join('')}
+  </ul></section>`;
+};
+FCW.attachNationSearch=function(D,input,list,onPick){
+  input.addEventListener('input',()=>{const t=input.value.trim().toLowerCase();if(!t){list.hidden=true;return}
+    const hits=D.nations.filter(n=>[n.name,n.code,n.nickname,n.coach,n.captain,n.stadium].some(x=>String(x||'').toLowerCase().includes(t))).slice(0,8);
+    list.innerHTML=hits.length?hits.map(n=>`<li><a href="/nation/#${n.id}" data-id="${n.id}"><img src="${FCW.flag(n)}" alt="">${esc(n.name)}<small>${n.rank?FCW.ord(n.rank):''} · ${esc(n.conf)}</small></a></li>`).join(''):'<li class="none">No nation matches that.</li>';
+    list.hidden=false;
+    if(onPick)list.querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();list.hidden=true;input.value='';onPick(D.byId[a.dataset.id])});});
+  input.addEventListener('keydown',e=>{if(e.key==='Escape'){list.hidden=true;input.value=''}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))list.hidden=true});
+};
+// flags as map markers: each drawn onto a small framed canvas so it reads at any size
+const flagImgs={};
+FCW.loadFlags=nations=>Promise.all(nations.map(n=>flagImgs[n.id]?0:new Promise(res=>{const im=new Image();im.onload=()=>{
+  const W=84,H=60,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  g.fillStyle='#FFFFFF';g.fillRect(0,0,W,H);g.drawImage(im,4,4,W-8,H-8);g.strokeStyle='rgba(20,18,14,.55)';g.lineWidth=2;g.strokeRect(1,1,W-2,H-2);
+  flagImgs[n.id]=g.getImageData(0,0,W,H);res()};im.onerror=res;im.src=FCW.flag(n)})));
+FCW.addNationLayers=function(map,opts){
+  if(map.getSource('nations'))return;
+  const css=FCW.css,s=opts.scale||1;
+  for(const id in flagImgs){if(!map.hasImage('flag-'+id))map.addImage('flag-'+id,flagImgs[id],{pixelRatio:2})}
+  map.addSource('nations',{type:'geojson',promoteId:'id',data:{type:'FeatureCollection',features:opts.nations.filter(n=>n.lat!=null).map(n=>({type:'Feature',geometry:{type:'Point',coordinates:[n.lon,n.lat]},
+    properties:{id:n.id,name:n.name,conf:n.conf,rank:n.rank||300,icon:'flag-'+n.id}}))}});
+  map.addLayer({id:'nation-ring',type:'circle',source:'nations',paint:{
+    'circle-color':css('--land'),'circle-opacity':['case',['boolean',['feature-state','sel'],false],1,0],
+    'circle-radius':['interpolate',['linear'],['zoom'],1,16*s,4,22*s,8,30*s],
+    'circle-stroke-color':css('--ring'),'circle-stroke-width':['case',['boolean',['feature-state','sel'],false],3,0]}});
+  map.addLayer({id:'nation-flag',type:'symbol',source:'nations',layout:{
+    'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],1,.34*s,4,.5*s,8,.8*s],
+    'icon-allow-overlap':true,'icon-ignore-placement':true,'symbol-sort-key':['get','rank'],
+    'text-field':['step',['zoom'],'',opts.labelsFrom||4,['get','name']],'text-font':['Noto Sans Bold'],'text-size':12,
+    'text-anchor':'top','text-offset':[0,1.1],'text-optional':true},
+    paint:{'text-color':css('--ink'),'text-halo-color':css('--land'),'text-halo-width':1.6}});
+  if(opts.onClick){map.on('click','nation-flag',e=>{const f=e.features&&e.features[0];if(f)opts.onClick(f.properties.id)});
+    map.on('mouseenter','nation-flag',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','nation-flag',()=>map.getCanvas().style.cursor='')}
+};
+FCW.dimConf=function(map,conf){
+  if(!map.getLayer('nation-flag'))return;
+  const on=['any',['==',conf,'all'],['==',['get','conf'],conf]];
+  map.setPaintProperty('nation-flag','icon-opacity',['case',on,1,.14]);
+  map.setPaintProperty('nation-flag','text-opacity',['case',on,1,0]);
+};
+FCW.makeNationMap=(el,opts)=>FCW.makeMap(el,{...opts,source:'nations',addLayers:FCW.addNationLayers,minZoom:1,zoom:opts.zoom||1.4,center:opts.center||[10,20]});
 
 FCW.registerSW=()=>{if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))};
 window.FCW=FCW;

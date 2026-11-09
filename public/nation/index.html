@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nation · footballclub.wiki</title>
+<meta name="description" content="A national team’s entry: FIFA ranking, World Cup and continental honours, record, head-to-head, next match and current squad.">
+<meta name="theme-color" content="#F8F6F1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
+<link rel="stylesheet" href="/annual.css?v=4">
+<script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+/* Nation: one yearbook entry. Honours and facts on the left; fixture, record, head-to-head and map on the right; squad below. */
+.crumb{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap;padding-block:10px;font-size:14px}
+.crumb a{min-height:40px;display:inline-flex;align-items:center;font-weight:600}
+.crumb .search{flex:0 1 320px;margin-left:auto}
+.crumb .search input{min-height:40px;padding:8px 10px;font-size:15px}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:36px;padding-block:22px 0}
+.grid>*{min-width:0}
+.top .honours{font-size:18px;margin-top:0}
+.side{display:grid;gap:8px;align-content:start}
+.side h2.sec:first-child{margin-top:0}
+.plate{height:300px}
+dl.facts.rec{font-size:15px;margin-top:4px}
+.h2h{display:grid;gap:8px}
+.h2h .search input{min-height:42px;font-size:15px}
+table.ref.mini td,table.ref.mini th{padding-block:5px}
+table.ref.mini td.last{color:var(--mute);font-size:12.5px}
+.squad{margin-top:30px;border-top:3px solid var(--ink);padding-top:4px}
+.squad h2.title2{font-family:var(--display);font-weight:700;font-size:34px;margin:8px 0 0}
+.cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 26px;margin-top:8px}
+.cols h3{font-size:12.5px;font-weight:800;color:var(--mute);margin:14px 0 4px;border-bottom:2px solid var(--ink);padding-bottom:5px}
+.cols ol{list-style:none;margin:0;padding:0}
+.cols li{display:grid;grid-template-columns:2.2ch minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule);font-family:var(--body);font-size:15.5px}
+.cols li .no{font:800 13px var(--ui);font-variant-numeric:tabular-nums;text-align:right;color:var(--mute)}
+.cols li .nm{min-width:0}
+.cols li .cg{font:12.5px var(--ui);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cols li .cl{grid-column:2/4;display:flex;align-items:center;gap:6px;font:12.5px var(--ui);color:var(--mute);min-width:0}
+.cols li .cl img{width:16px;height:16px;object-fit:contain;flex:none}
+.cols li .cl a{color:inherit;text-decoration:none}
+.cols li .cl a:hover{text-decoration:underline}
+.cols li .cl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr;gap:26px}
+  .crumb .search{flex:1 1 100%;margin-left:0}
+  .cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <a class="brand" href="/">footballclub<i>.wiki</i></a>
+  <div class="right">
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/nations/">Nations</a><a href="/worldcup/">World Cup</a><a href="/grounds/">Grounds</a></nav>
+    <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
+  </div>
+</div></header>
+<div class="wrap"><div class="crumb">
+  <a href="/nations/" id="back">All nations</a>
+  <div class="search"><label for="q" class="sr">Find a nation</label>
+    <input id="q" type="search" placeholder="Find a nation" autocomplete="off">
+    <ul class="results" id="results" hidden></ul></div>
+</div></div>
+<div id="cover"></div>
+<main class="wrap" id="main"><p class="empty">Loading the nation…</p></main>
+<footer class="colophon"><div class="wrap">
+  <div class="feed" id="feed"><i></i>Daily snapshot</div>
+  <p><b>Sources.</b> FIFA ranking as published by FIFA (via Wikipedia). Honours, coach, captain, record holders, home ground and the current squad from the nation's Wikipedia article (the squad is the latest call-up listed there; club crests link to clubs in this register). All-time record and head-to-head computed from the open international results dataset; the next match and competitions from ESPN's public feed. Flags from ESPN. Map tiles from OpenFreeMap, data © OpenStreetMap contributors.</p>
+</div></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
+<script src="/annual.js?v=4"></script>
+<script>
+(async function(){
+  const $=s=>document.querySelector(s),esc=FCW.esc,fmt=FCW.fmt;
+  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let map=null;
+  FCW.initTheme(()=>map&&map.retheme());
+  const D=await FCW.loadNations(['nation_squads','h2h','clubs','worldcup2026']);
+  FCW.attachNationSearch(D,$('#q'),$('#results'));
+  const idFrom=()=>(location.hash.match(/^#(n\d+)$/)||[])[1];
+  let n=null;
+  const longDate=iso=>{const d=new Date(iso+'T12:00:00Z');return isNaN(d)?iso:d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})};
+  const nlink=name=>{const t=D.byName[name];return t?`<a href="/nation/#${t.id}">${esc(name)}</a>`:esc(name)};
+
+  function recordHTML(){
+    const r=n.record;if(!r||!r.p)return '';
+    const pct=Math.round(100*r.w/r.p);
+    return `<h2 class="sec">All-time record</h2>
+      <table class="record"><thead><tr><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th></tr></thead>
+      <tbody><tr><td>${fmt(r.p)}</td><td>${fmt(r.w)}</td><td>${fmt(r.d)}</td><td>${fmt(r.l)}</td><td>${fmt(r.gf)}</td><td>${fmt(r.ga)}</td></tr></tbody></table>
+      <dl class="facts rec">
+        ${r.first?`<div><dt>First match</dt><dd>${esc(r.first.score)} v ${nlink(r.first.opp)}, ${esc(longDate(r.first.date))}${r.first.city?', '+esc(r.first.city):''}</dd></div>`:''}
+        ${r.win?`<div><dt>Biggest win</dt><dd>${esc(r.win.score)} v ${nlink(r.win.opp)}, ${esc(longDate(r.win.date))}</dd></div>`:''}
+        ${r.loss&&r.loss.m<0?`<div><dt>Heaviest defeat</dt><dd>${esc(r.loss.score)} v ${nlink(r.loss.opp)}, ${esc(longDate(r.loss.date))}</dd></div>`:''}
+        <div><dt>Win rate</dt><dd>${pct}%</dd></div></dl>`;
+  }
+  // head-to-head: the most-played opponents, or the one typed into the box
+  function h2hRows(ids){
+    const H=(D.h2h&&D.h2h[n.id])||{};
+    return `<table class="ref mini"><thead><tr><th>Opponent</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n wide">GF</th><th class="n wide">GA</th><th>Last</th></tr></thead><tbody>
+      ${ids.map(id=>{const o=D.byId[id],x=H[id];if(!o||!x)return '';return `<tr><td><a class="club nat" href="/nation/#${o.id}"><img src="${FCW.flag(o)}" alt=""><span>${esc(o.name)}</span></a></td><td class="n">${x[0]}</td><td class="n b">${x[1]}</td><td class="n">${x[2]}</td><td class="n">${x[3]}</td><td class="n wide">${x[4]}</td><td class="n wide">${x[5]}</td><td class="last">${esc(x[7])} · ${esc(x[6].slice(0,4))}</td></tr>`}).join('')}
+      </tbody></table>`;
+  }
+  function h2hHTML(){
+    const H=(D.h2h&&D.h2h[n.id])||{};
+    const top=Object.entries(H).filter(([id])=>D.byId[id]).sort((a,b)=>(b[1][0]-a[1][0])||(a[1][6]<b[1][6]?1:-1)).slice(0,6).map(([id])=>id);
+    if(!top.length)return '';
+    return `<h2 class="sec">Head to head</h2><div class="h2h">
+      <div class="search"><label for="opp" class="sr">Record against a nation</label><input id="opp" type="search" placeholder="Record against…" autocomplete="off"><ul class="results" id="oppres" hidden></ul></div>
+      <div id="h2hbody">${h2hRows(top)}<p class="note">Most-played opponents, ${Object.keys(H).length} nations faced in all. Type a nation above for its record.</p></div></div>`;
+  }
+  function wireH2H(){
+    const inp=$('#opp'),list=$('#oppres');if(!inp)return;
+    const H=(D.h2h&&D.h2h[n.id])||{};
+    inp.addEventListener('input',()=>{const t=inp.value.trim().toLowerCase();if(!t){list.hidden=true;return}
+      const hits=D.nations.filter(o=>o!==n&&o.name.toLowerCase().includes(t)).slice(0,8);
+      list.innerHTML=hits.length?hits.map(o=>`<li><a href="#" data-id="${o.id}"><img class="flag" src="${FCW.flag(o)}" alt="">${esc(o.name)}<small>${H[o.id]?H[o.id][0]+' played':'never met'}</small></a></li>`).join(''):'<li class="none">No nation matches that.</li>';
+      list.hidden=false;
+      list.querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();list.hidden=true;inp.value='';const o=D.byId[a.dataset.id];
+        $('#h2hbody').innerHTML=H[o.id]?h2hRows([o.id])+`<p class="note">${esc(n.name)} v ${esc(o.name)}: ${H[o.id][0]} matches; the last was ${esc(H[o.id][7])} on ${esc(longDate(H[o.id][6]))} (${esc(H[o.id][8])}).</p>`:`<p class="note">${esc(n.name)} and ${esc(o.name)} have never met in a full international.</p>`});});
+    inp.addEventListener('keydown',e=>{if(e.key==='Escape'){list.hidden=true;inp.value=''}});
+  }
+  function squadHTML(){
+    const sq=D.nation_squads&&D.nation_squads[n.id];
+    if(!sq||!sq.players.length)return `<section class="squad"><h2 class="title2">Squad</h2><p class="empty">No squad list for this nation yet.</p></section>`;
+    const pl=sq.players,G=[['GK','Goalkeepers'],['DF','Defenders'],['MF','Midfielders'],['FW','Forwards']];
+    const by=k=>pl.filter(p=>p.pos===k).sort((a,b)=>(a.no??99)-(b.no??99));
+    const rest=pl.filter(p=>!G.some(([k])=>k===p.pos));
+    const club=p=>{const c=p.club_id&&D.clubById&&D.clubById[p.club_id];
+      if(c)return `<span class="cl"><a href="/club/#c${c.espn_id}"><img src="${FCW.crest(c)}" alt=""></a><a href="/club/#c${c.espn_id}"><span>${esc(c.name)}</span></a></span>`;
+      return p.club?`<span class="cl"><span>${esc(p.club)}${p.clubnat&&p.clubnat!==n.code?' · '+esc(p.clubnat):''}</span></span>`:''};
+    return `<section class="squad"><h2 class="title2">Squad</h2><p class="note">${pl.length} players. ${esc(sq.note||'The latest squad named.')}</p><div class="cols">
+      ${G.map(([k,t])=>`<div><h3>${t}</h3><ol>${by(k).concat(k==='FW'?rest:[]).map(p=>`<li><span class="no">${p.no??''}</span><span class="nm">${esc(p.name)}</span><span class="cg" title="caps · goals">${p.caps||0} · ${p.goals||0}</span>${club(p)}</li>`).join('')}</ol></div>`).join('')}
+    </div></section>`;
+  }
+  function liveHTML(){
+    const tl=FCW.nationLive(D,n);
+    return `<h2 class="sec">Next match</h2>${FCW.nationNextHTML(D,n)}
+      ${tl.competitions&&tl.competitions.length?`<h2 class="sec">Competitions this season</h2><div class="comps">${tl.competitions.map(x=>`<span>${esc(FCW.shortComp(x))}</span>`).join('')}</div>`:''}`;
+  }
+  function wc2026(){
+    const W=D.worldcup2026;if(!W)return '';
+    const g=W.groups.find(g=>g.table.some(t=>t.id===n.id));if(!g)return '';
+    let last='Group '+g.letter;
+    for(const r of W.rounds)for(const m of r.matches)if(m.home===n.id||m.away===n.id)last=r.name;
+    const won=W.champion===n.id;
+    return `<a href="/worldcup/#${g.letter.toLowerCase()}">2026 World Cup: ${won?'champions':last==='Final'?'runners-up':last==='Third place'?(W.third===n.id?'third place':'fourth place'):last.startsWith('Group')?'group stage, '+last:'out in the '+last.toLowerCase()}</a>`;
+  }
+  function draw(){
+    document.title=n.name+' · footballclub.wiki';
+    $('#back').textContent=FCW.confName(n.conf);$('#back').href='/nations/#'+n.conf.toLowerCase();
+    $('#cover').innerHTML=FCW.nationCoverHTML(D,n);
+    $('#main').innerHTML=`<article>
+      <div class="grid">
+        <div class="top">
+          <p class="honours"><b>Honours</b> ${FCW.nationHonours(n)}</p>
+          ${FCW.nationFactsHTML(D,n)}
+          <div class="btns"><a class="pri" href="https://www.espn.com/soccer/team/fixtures/_/id/${n.espn_id}" target="_blank" rel="noopener">Fixtures on ESPN</a>${n.wiki?`<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(n.wiki.replace(/ /g,'_'))}" target="_blank" rel="noopener">Wikipedia</a>`:''}${wc2026()}</div>
+        </div>
+        <div class="side">
+          <div id="live" class="side">${liveHTML()}</div>
+          ${recordHTML()}
+          ${h2hHTML()}
+          <h2 class="sec">${n.pin==='stadium'?'Home ground':'Where they are'}</h2>
+          <section class="plate" aria-label="Map"><div class="map" id="map" role="region" aria-label="Map of ${esc(n.stadium||n.name)} and neighbouring nations"></div></section>
+          ${n.stadium&&n.pin==='stadium'?`<p class="note">${esc(n.stadium)}. Flags mark neighbouring national sides.</p>`:'<p class="note">Flags mark national sides; this one has no single home ground on record.</p>'}
+        </div>
+      </div>
+      <div id="sq">${squadHTML()}</div>
+    </article>`;
+    wireH2H();drawMap();
+  }
+  async function drawMap(){
+    if(!window.maplibregl||n.lat==null)return;
+    if(map){try{map.remove()}catch(e){}map=null}
+    await FCW.loadFlags(D.nations);
+    map=FCW.makeNationMap('map',{nations:D.nations,center:[n.lon,n.lat],zoom:n.pin==='stadium'?4.2:3.2,scale:.9,labelsFrom:3,cooperative:true,
+      onClick:id=>{if(id!==n.id)location.hash=id},onReady:()=>map.select(n.id)});
+    map.select(n.id);
+  }
+  function open(){
+    n=D.byId[idFrom()]||D.byName['Spain']||D.nations[0];
+    draw();scrollTo({top:0,behavior:'auto'});
+    const me=n;
+    FCW.refreshNation(D,n).then(()=>{if(me!==n)return;FCW.feedLine(D);$('#live').innerHTML=liveHTML()}).catch(()=>{});
+  }
+  addEventListener('hashchange',open);
+  FCW.feedLine(D);open();
+})().catch(e=>{document.getElementById('main').innerHTML='<p class="empty">This nation didn’t load. Check your connection and reload the page.</p>';console.error(e)});
+FCW.registerSW();
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>World Cup 2026 · footballclub.wiki</title>
+<meta name="description" content="The 2026 FIFA World Cup in the United States, Canada and Mexico: the bracket from the round of 32 to the final, all twelve groups and every result.">
+<link rel="canonical" href="https://footballclub.wiki/worldcup/">
+<meta property="og:title" content="World Cup 2026 · footballclub.wiki">
+<meta property="og:description" content="Bracket, groups and every result of the 2026 World Cup.">
+<meta property="og:image" content="https://footballclub.wiki/og-image.png">
+<meta property="og:url" content="https://footballclub.wiki/worldcup/">
+<meta name="theme-color" content="#F8F6F1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="/annual.css?v=4">
+<script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+/* World Cup: the winner on the cover, the bracket as columns of ties, then the twelve groups as reference tables. */
+main{padding-block:8px 10px}
+main h1.title{margin-top:20px}
+.champ{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center;border:1px solid var(--border);background:var(--land);padding:16px 18px;margin-top:18px}
+.champ img{width:96px;height:64px;object-fit:cover;border:1px solid var(--border)}
+.champ b{font:700 clamp(28px,4vw,44px)/.95 var(--display);display:block}
+.champ p{margin:6px 0 0;font-family:var(--body);color:var(--mute);font-size:16px}
+.champ a{text-decoration:none}.champ a:hover{text-decoration:underline}
+h2.big{margin-top:34px}
+.bracket{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:18px;overflow-x:auto;padding-bottom:8px;margin-top:10px;-webkit-overflow-scrolling:touch}
+.round h3{font-size:12.5px;font-weight:800;color:var(--mute);margin:0 0 6px;border-bottom:2px solid var(--ink);padding-bottom:5px;position:sticky;top:0;background:var(--paper)}
+.round{display:grid;align-content:space-around;gap:10px}
+.tie{border:1px solid var(--border);background:var(--land);font-size:14.5px}
+.tie a{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 10px;text-decoration:none;color:var(--ink)}
+.tie a+a{border-top:1px solid var(--rule)}
+.tie img{width:30px;height:20px;object-fit:cover;border:1px solid var(--border)}
+.tie .sc{font:800 16px var(--display);font-variant-numeric:tabular-nums;min-width:2ch;text-align:right}
+.tie .w{font-weight:800}
+.tie .l{color:var(--mute)}
+.tie small{display:block;font-size:11.5px;color:var(--mute);padding:4px 10px 6px;border-top:1px solid var(--rule)}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px 28px;margin-top:10px}
+.group h3{font:700 24px/1 var(--display);margin:18px 0 0}
+.group table.ref{font-size:14px;margin-top:6px}
+.group td.q{box-shadow:inset 3px 0 0 var(--up)}
+.group details{margin-top:6px}
+.group summary{cursor:pointer;font-size:12.5px;color:var(--mute);min-height:32px;display:flex;align-items:center}
+.group ul{list-style:none;margin:4px 0 0;padding:0;font-size:13.5px}
+.group li{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;padding:5px 0;border-bottom:1px solid var(--rule)}
+.group li b{font-variant-numeric:tabular-nums;font-family:var(--display);font-size:16px}
+.group li span:first-child{text-align:right}
+.group li .d{grid-column:1/4;font-size:11.5px;color:var(--mute);padding:0}
+@media (max-width:900px){
+  .bracket{grid-auto-columns:minmax(240px,80vw)}
+}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <a class="brand" href="/">footballclub<i>.wiki</i></a>
+  <div class="right">
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/nations/">Nations</a><a href="/worldcup/" aria-current="page">World Cup</a><a href="/grounds/">Grounds</a></nav>
+    <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
+  </div>
+</div></header>
+<main class="wrap" id="main"><p class="empty">Loading the tournament…</p></main>
+<footer class="colophon"><div class="wrap">
+  <p><b>Sources.</b> Results from the open <a href="https://github.com/martj42/international_results" target="_blank" rel="noopener">international results dataset</a>; groups derived from the fixtures played, lettered per the December 2025 draw. Ties level after extra time were decided on penalties; the side that went through is shown in bold. Flags from ESPN.</p>
+</div></footer>
+<script src="/annual.js?v=4"></script>
+<script>
+(async function(){
+  const $=s=>document.querySelector(s),esc=FCW.esc;
+  FCW.initTheme();
+  const D=await FCW.loadNations(['worldcup2026']);
+  const W=D.worldcup2026;if(!W)throw new Error('no tournament data');
+  const N=id=>D.byId[id]||{id,name:'?'};
+  const day=iso=>new Date(iso+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  const side=(id,g,win,other)=>{const t=N(id);return `<a href="/nation/#${t.id}" class="${win===id?'w':win?'l':''}"><img src="${FCW.flag(t)}" alt=""><span>${esc(t.name)}</span><span class="sc">${g}</span></a>`};
+  const tie=m=>`<div class="tie">${side(m.home,m.hs,m.winner)}${side(m.away,m.as,m.winner)}<small>${esc(day(m.date))} · ${esc(m.city)}${m.pens?' · '+esc(N(m.winner).name)+' won on penalties':''}</small></div>`;
+  const ch=N(W.champion),ru=N(W.runner_up),th=N(W.third),fin=W.rounds[W.rounds.length-1].matches[0];
+  const went=new Set(W.rounds[0].matches.flatMap(m=>[m.home,m.away]));
+  // order each round so a tie sits beside the one its winner went on to play
+  const ko=W.rounds.filter(r=>r.name!=='Third place').map(r=>({...r,matches:[...r.matches]})),third=W.rounds.find(r=>r.name==='Third place');
+  for(let i=ko.length-2;i>=0;i--){const nx=ko[i+1].matches.flatMap(m=>[m.home,m.away]);ko[i].matches.sort((a,b)=>nx.indexOf(a.winner)-nx.indexOf(b.winner))}
+  const cols=third?[...ko,third]:ko;
+  const groups=W.groups.map(g=>`<section class="group" id="${g.letter.toLowerCase()}"><h3>Group ${g.letter}</h3>
+    <table class="ref"><thead><tr><th>Nation</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>
+    ${g.table.map(t=>{const n=N(t.id);return `<tr><td class="${went.has(t.id)?'q':''}"><a class="club nat" href="/nation/#${n.id}"><img src="${FCW.flag(n)}" alt=""><span>${esc(n.name)}</span></a></td><td class="n">${t.p}</td><td class="n">${t.w}</td><td class="n">${t.d}</td><td class="n">${t.l}</td><td class="n">${t.gf-t.ga>0?'+':''}${t.gf-t.ga}</td><td class="n b">${t.pts}</td></tr>`}).join('')}
+    </tbody></table>
+    <details><summary>The six matches</summary><ul>${g.matches.map(m=>`<li><span>${esc(N(m.home).name)}</span><b>${m.hs}–${m.as}</b><span>${esc(N(m.away).name)}</span><span class="d">${esc(day(m.date))} · ${esc(m.city)}</span></li>`).join('')}</ul></details>
+  </section>`).join('');
+  $('#main').innerHTML=`<h1 class="title">2026 FIFA World Cup</h1>
+    <p class="dek">${esc(W.hosts.join(', ').replace(/, ([^,]*)$/,' and $1'))}, 11 June to 19 July 2026. Forty-eight nations in twelve groups, then a knockout from the round of 32; ${W.matches} matches in all.</p>
+    <div class="champ"><img src="${FCW.flag(ch)}" alt=""><div><b><a href="/nation/#${ch.id}">${esc(ch.name)}</a>, champions</b>
+      <p>Beat <a href="/nation/#${ru.id}">${esc(ru.name)}</a> ${fin.hs}–${fin.as} in the final at ${esc(fin.city)} on ${esc(day(fin.date))}. <a href="/nation/#${th.id}">${esc(th.name)}</a> took third place.</p></div></div>
+    <h2 class="big">The knockout bracket</h2>
+    <div class="bracket">${cols.map(r=>`<div class="round"><h3>${esc(r.name)}</h3>${r.matches.map(tie).join('')}</div>`).join('')}</div>
+    <p class="note">Scroll sideways for the later rounds. Each tie links to the nations’ pages.</p>
+    <h2 class="big">The groups</h2>
+    <div class="legend"><span><i style="background:var(--up)"></i>Reached the round of 32</span></div>
+    <div class="groups">${groups}</div>`;
+  if(location.hash){const el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView()}
+})().catch(e=>{document.getElementById('main').innerHTML='<p class="empty">The tournament didn’t load. Check your connection and reload the page.</p>';console.error(e)});
+FCW.registerSW();
+</script>
+</body>
+</html>

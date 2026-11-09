@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Grounds · footballclub.wiki</title>
-<meta name="description" content="Every ground on one map: 236 clubs in Europe and North America, with each club's crest as its marker.">
+<meta name="description" content="Every ground on one map: 358 clubs in Europe and the Americas, with each club's crest as its marker.">
 <meta name="theme-color" content="#F8F6F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
-<link rel="stylesheet" href="/annual.css?v=2">
+<link rel="stylesheet" href="/annual.css?v=4">
 <script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;padding-block:20px 40px}
@@ -27,12 +27,12 @@ aside{min-width:0}
 <header class="mast"><div class="wrap">
   <a class="brand" href="/">footballclub<i>.wiki</i></a>
   <div class="right">
-    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/grounds/" aria-current="page">Grounds</a></nav>
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/nations/">Nations</a><a href="/worldcup/">World Cup</a><a href="/grounds/" aria-current="page">Grounds</a></nav>
     <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
   </div>
 </div></header>
 <div class="bar"><div class="wrap">
-  <div class="seg" role="group" aria-label="Region"><button id="rEU" type="button" aria-pressed="true">Europe</button><button id="rNA" type="button" aria-pressed="false">North America</button></div>
+  <div class="seg" role="group" aria-label="Region"><button id="rEU" type="button" aria-pressed="true">Europe</button><button id="rNA" type="button" aria-pressed="false">Americas</button></div>
   <div class="chips" id="chips" role="group" aria-label="League"></div>
 </div></div>
 <main><div class="wrap">
@@ -44,12 +44,12 @@ aside{min-width:0}
     <div class="search"><label for="q" class="sr">Find a club, ground or city</label>
       <input id="q" type="search" placeholder="Find a club, ground or city" autocomplete="off">
       <ul class="results" id="results" hidden></ul></div>
-    <div id="entry"><p class="empty">Loading 236 grounds…</p></div>
+    <div id="entry"><p class="empty">Loading 358 grounds…</p></div>
     <p class="note" style="margin-top:20px">Map tiles from OpenFreeMap, data © OpenStreetMap contributors. Next matches from ESPN when it can be reached, otherwise the daily snapshot.</p>
   </aside>
 </div></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
-<script src="/annual.js?v=2"></script>
+<script src="/annual.js?v=4"></script>
 <script>
 (async function(){
   const $=s=>document.querySelector(s),esc=FCW.esc;
@@ -58,13 +58,13 @@ aside{min-width:0}
   FCW.initTheme(()=>map&&map.retheme());
   const D=await FCW.load();
   const clubs=D.clubs.filter(c=>c.lat!=null&&c.lon!=null),byId=D.byId,L=D.L;
-  const NA=c=>c.league==='usa.1';
+  const NA=c=>FCW.region(D,c.league)!=='eu';
   let region='eu',league='all',selected=null;
   const inRegion=c=>region==='na'?NA(c):!NA(c);
 
   function drawChips(){
     const chips=$('#chips');chips.innerHTML='';
-    ['all',...FCW.ORDER.filter(k=>region==='na'?k==='usa.1':k!=='usa.1')].forEach(k=>{
+    ['all',...FCW.ORDER.filter(k=>region==='na'?FCW.region(D,k)!=='eu':FCW.region(D,k)==='eu')].forEach(k=>{
       const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(league===k));
       b.innerHTML=esc(k==='all'?'All':L[k].name)+'<b>'+clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)).length+'</b>';
       b.onclick=()=>{league=k;drawChips();FCW.dimLeague(map,league);fit(clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)))};

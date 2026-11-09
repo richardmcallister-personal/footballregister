@@ -1,8 +1,10 @@
 # footballclub.wiki
 
-Static site: 236 clubs across thirteen leagues in Europe and North America. Pages: Leagues (`index.html`), Club
-(`club/`, `#c<espn_id>`) and Grounds (`grounds/`), sharing `annual.css` and `annual.js` (theme, data, live ESPN layer, maps). See README.md for the
-file layout and data model. This file covers how the site is run and how to work on it.
+Static site: 358 clubs across nineteen leagues in Europe and the Americas, plus all 211 FIFA national teams.
+Pages: Leagues (`index.html`), Club (`club/`, `#c<espn_id>`), Grounds (`grounds/`), Nations (`nations/`, `#uefa` etc.),
+Nation (`nation/`, `#n<espn_id>`) and World Cup 2026 (`worldcup/`), sharing `annual.css` and `annual.js` (theme, data,
+live ESPN layer, maps, nation helpers). See README.md for the file layout and data model. This file covers how the
+site is run and how to work on it.
 
 ## Where things live
 
@@ -27,10 +29,18 @@ file layout and data model. This file covers how the site is run and how to work
 ## Daily data refresh
 
 - `.github/workflows/refresh.yml` runs `scripts/refresh.py` at 04:15 UTC (and on manual dispatch),
-  then commits `public/data/snapshot.json` and `public/data/rosters.json` as `footballclub-bot`.
+  then commits `public/data/snapshot.json`, `public/data/rosters.json` and `public/data/nations_live.json` as `footballclub-bot`.
   Repo Settings → Actions → Workflow permissions is "Read and write" so this push works.
 - `refresh.py` is standard-library Python, no API key. It pulls standings, next fixtures and squads
-  from ESPN's public soccer API; if a feed fails it keeps the previous data.
+  from ESPN's public soccer API; if a feed fails it keeps the previous data. It also writes
+  `public/data/nations_live.json`: next match and competitions for every nation in `nations.json`
+  (ESPN schedule by national-team id) and the FIFA ranking read from Wikipedia's
+  `Module:SportsRankings/data/FIFA World Rankings` (updated there within a day of each FIFA release).
+  Commit `nations_live.json` with the other two in the workflow.
+- National-team facts (`nations.json`: honours, coach, captain, records, grounds, coordinates), squads
+  (`nation_squads.json`, latest call-up from Wikipedia with `club_id` where the club is in the register),
+  `h2h.json` (all-time head-to-head among FIFA members, computed from the martj42 international results
+  dataset) and `worldcup2026.json` are static research files; rebuild them by hand when needed.
 - League of Ireland isn't on ESPN: edit `scripts/irl_static.json` by hand.
 - The page also calls ESPN live in the browser; the committed snapshot is the fallback and first paint.
 - Run locally with `python3 scripts/refresh.py` — it rewrites the two data files, so don't commit

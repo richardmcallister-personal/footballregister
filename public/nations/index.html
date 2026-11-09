@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nations · footballclub.wiki</title>
+<meta name="description" content="Every FIFA member nation: the world ranking, World Cup and continental honours, head coaches, home grounds and next matches, with every nation on a map.">
+<link rel="canonical" href="https://footballclub.wiki/nations/">
+<meta property="og:title" content="The nations · footballclub.wiki">
+<meta property="og:description" content="All 211 FIFA members: ranking, honours, coaches, grounds, squads and fixtures.">
+<meta property="og:image" content="https://footballclub.wiki/og-image.png">
+<meta property="og:url" content="https://footballclub.wiki/nations/">
+<meta name="theme-color" content="#F8F6F1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
+<link rel="stylesheet" href="/annual.css?v=4">
+<script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+/* Nations: the ranking as the reference table, the selected nation's entry and a world map beside it. */
+main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:32px;padding-block:8px 10px}
+main h1.title{margin-top:20px}
+.page{min-width:0}
+aside{min-width:0}
+aside .stick{position:sticky;top:12px;display:grid;gap:14px}
+.plate{height:300px}
+.entry .head{margin-top:0}
+.entry .head h2{font-size:32px}
+.entry .honours{font-size:15.5px}
+.entry dl.facts{font-size:15px}
+table.ref tbody tr{cursor:pointer}
+table.ref tbody tr:hover td{background:var(--tint)}
+table.ref tbody tr:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
+table.ref td.coach{max-width:18ch;overflow:hidden;text-overflow:ellipsis}
+.hint{font-size:12.5px;color:var(--mute);margin:6px 0 0}
+.wc{display:flex;gap:14px;align-items:center;border:1px solid var(--border);background:var(--land);padding:12px 14px;margin-top:18px;text-decoration:none}
+.wc img{width:48px;height:32px;object-fit:cover;border:1px solid var(--border)}
+.wc b{font-family:var(--display);font-size:22px;line-height:1;display:block}
+.wc span{color:var(--mute);font-size:13.5px}
+@media (max-width:900px){
+  main .wrap{grid-template-columns:1fr;gap:24px}
+  aside .stick{position:static}
+  aside .entry{display:none}
+  .plate{height:340px}
+  table.ref{font-size:14px}
+  table.ref .wide{display:none}
+}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <a class="brand" href="/">footballclub<i>.wiki</i></a>
+  <div class="right">
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/nations/" aria-current="page">Nations</a><a href="/worldcup/">World Cup</a><a href="/grounds/">Grounds</a></nav>
+    <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
+  </div>
+</div></header>
+<div class="bar"><div class="wrap">
+  <nav class="chips" id="chips" aria-label="Confederations"></nav>
+</div></div>
+<div id="programme"></div>
+<main><div class="wrap">
+  <div class="page" id="page"><p class="empty">Loading the ranking…</p></div>
+  <aside aria-label="Selected nation">
+    <div class="stick">
+      <div class="search"><label for="q" class="sr">Find a nation, coach or ground</label>
+        <input id="q" type="search" placeholder="Find a nation, coach or ground" autocomplete="off">
+        <ul class="results" id="results" hidden></ul></div>
+      <section class="plate" aria-label="World map"><div class="map" id="map" role="region" aria-label="Map of the nations, flags as markers"></div></section>
+      <div class="entry" id="entry"></div>
+    </div>
+  </aside>
+</div></main>
+<footer class="colophon"><div class="wrap">
+  <div class="feed" id="feed"><i></i>Daily snapshot</div>
+  <p><b>Sources.</b> The FIFA/Coca-Cola Men's World Ranking as published by FIFA and transcribed on Wikipedia, updated after each ranking release. Honours, coaches, captains, record holders and home grounds from each nation's Wikipedia article; all-time records and head-to-head figures computed from the open <a href="https://github.com/martj42/international_results" target="_blank" rel="noopener">international results dataset</a> (full internationals recognised by the associations). Next matches and competitions from ESPN's public feed. Flags from ESPN. Map tiles from OpenFreeMap, data © OpenStreetMap contributors.</p>
+</div></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
+<script src="/annual.js?v=4"></script>
+<script>
+(async function(){
+  const $=s=>document.querySelector(s),esc=FCW.esc;
+  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const phone=matchMedia('(max-width:900px)');
+  let map=null;
+  FCW.initTheme(()=>map&&map.retheme());
+  const D=await FCW.loadNations(['worldcup2026']);
+  let conf=null,sel=null,sort={k:'rank',dir:1};
+  const CONFS=FCW.CONFS.map(c=>c[0]);
+  const route=()=>{const k=location.hash.slice(1).toUpperCase();return CONFS.includes(k)?k:null};
+  const inConf=k=>D.nations.filter(n=>n.conf===k);
+
+  function drawChips(){
+    $('#chips').innerHTML=`<a href="#" ${conf?'':'aria-current="page"'}>All nations</a>`+FCW.CONFS.map(([k,long])=>`<a href="#${k.toLowerCase()}" ${conf===k?'aria-current="page"':''}>${esc(k)}<b>${inConf(k).length}</b></a>`).join('');
+    const cur=$('#chips [aria-current]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({block:'nearest',inline:'nearest'});
+  }
+  const COLS=[
+    {k:'rank',t:'#',n:1,v:n=>n.rank||999},
+    {k:'name',t:'Nation',v:n=>n.name},
+    {k:'pts',t:'Pts',n:1,v:n=>n.rank_pts||0},{k:'move',t:'+/−',n:1,v:n=>n.rank_move||0,wide:1},
+    {k:'conf',t:'Conf.',v:n=>n.conf,wide:1},
+    {k:'wcapps',t:'WC apps',n:1,v:n=>n.wc.apps||0,wide:1},{k:'wc',t:'WC',n:1,v:n=>n.wc.titles||0},
+    {k:'reg',t:'Continental',n:1,v:n=>(n.reg&&n.reg.titles)||0},
+    {k:'coach',t:'Head coach',v:n=>n.coach||'',wide:1}];
+  function tableHTML(rows){
+    const s=[...rows].sort((a,b)=>{const c=COLS.find(x=>x.k===sort.k),va=c.v(a),vb=c.v(b);
+      return (typeof va==='string'?va.localeCompare(vb):va-vb)*sort.dir||(a.rank||999)-(b.rank||999)});
+    return `<div class="tw"><table class="ref"><thead><tr>${COLS.map(c=>`<th class="${c.n?'n':''} ${c.wide?'wide':''}" scope="col"><button type="button" data-k="${c.k}" ${sort.k===c.k?`aria-sort="${sort.dir>0?'ascending':'descending'}"`:''}>${c.t}</button></th>`).join('')}</tr></thead><tbody>
+      ${s.map(n=>`<tr class="${n.rank===1?'zone-top':''} ${sel&&sel.id===n.id?'sel':''}" data-id="${n.id}" tabindex="0">
+        <td class="n b">${n.rank||'—'}</td>
+        <td><a class="club nat" href="/nation/#${n.id}"><img src="${FCW.flag(n)}" alt=""><span>${esc(n.name)}</span></a></td>
+        <td class="n">${n.rank_pts?n.rank_pts.toFixed(0):'—'}</td><td class="n wide">${FCW.move(n.rank_move)}</td>
+        <td class="wide mute">${esc(n.conf)}</td>
+        <td class="n wide">${n.wc.apps||''}</td><td class="n b">${n.wc.titles||''}</td>
+        <td class="n">${(n.reg&&n.reg.titles)||''}</td>
+        <td class="wide coach" title="${esc(n.coach||'')}">${esc(n.coach||'')}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  function wcLine(){
+    const W=D.worldcup2026;if(!W)return '';
+    const ch=D.byId[W.champion],ru=D.byId[W.runner_up];if(!ch)return '';
+    return `<a class="wc" href="/worldcup/"><img src="${FCW.flag(ch)}" alt=""><div><b>${esc(ch.name)}, world champions 2026</b><span>Beat ${esc(ru?ru.name:'')} in the final at East Rutherford, 19 July. Groups, bracket and every result →</span></div></a>`;
+  }
+  function page(){
+    const rows=conf?inConf(conf):D.nations;
+    const lead=rows[0];
+    document.title=(conf?FCW.confName(conf):'Nations')+' · footballclub.wiki';
+    const updated=D.rankingUpdated?`FIFA ranking of ${esc(D.rankingUpdated)}`:'FIFA ranking';
+    $('#page').innerHTML=`<h1 class="title">${conf?esc(FCW.confName(conf)):'The nations'}</h1>
+      <p class="dek">${conf?`${rows.length} ${esc(conf)} members`:`${D.nations.length} FIFA member associations`}${lead&&lead.rank?`; ${esc(lead.name)} ${conf?'rank highest, '+FCW.ord(lead.rank)+' in the world':'lead the world ranking'}`:''}. ${updated}. Every nation has a page with its honours, record, next match and squad.</p>
+      ${conf?'':wcLine()}
+      ${tableHTML(rows)}
+      <div class="legend"><span><i style="background:var(--up)"></i>World number one</span><span>WC = World Cup titles; Continental = confederation championship titles (Euro, Copa América, Gold Cup, AFCON, Asian Cup, Nations Cup).</span></div>
+      <p class="hint">${phone.matches?'Tap a nation for its page. Swipe the table sideways for more columns.':'Select a row to see the nation beside the table; the name opens its page. Column heads sort.'}</p>`;
+    $('#page').querySelectorAll('th button').forEach(b=>b.onclick=()=>{const kk=b.dataset.k;sort=sort.k===kk?{k:kk,dir:-sort.dir}:{k:kk,dir:['name','conf','coach','rank'].includes(kk)?1:-1};page()});
+    $('#page').querySelectorAll('tbody tr').forEach(tr=>{
+      const go=e=>{if(e.target.closest('a'))return;const n=D.byId[tr.dataset.id];if(phone.matches){location.href='/nation/#'+n.id;return}pick(n,true)};
+      tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter')go(e)}});
+    if(!sel||(conf&&sel.conf!==conf))sel=lead;
+    if(sel)entry(sel);
+    if(map){FCW.dimConf(map,conf||'all');map.select(sel&&sel.id);fitTo(rows)}
+  }
+  function entry(n){
+    $('#entry').innerHTML=`${FCW.nationHeadHTML(D,n)}
+      <p class="honours"><b>Honours</b> ${FCW.nationHonours(n)}</p>
+      ${FCW.nationFactsHTML(D,n)}
+      <h2 class="sec">Next match</h2>${FCW.nationNextHTML(D,n)}
+      <div class="btns"><a class="pri" href="/nation/#${n.id}">Open nation page</a></div>`;
+  }
+  function pick(n,fromTable){
+    sel=n;
+    $('#page').querySelectorAll('tbody tr').forEach(tr=>tr.classList.toggle('sel',tr.dataset.id===n.id));
+    entry(n);
+    if(map){map.select(n.id);if(!fromTable)map.easeTo({center:[n.lon,n.lat],duration:still?0:600})}
+    FCW.refreshNation(D,n).then(()=>{if(sel===n){entry(n);FCW.feedLine(D)}}).catch(()=>{});
+  }
+  function fitTo(list){
+    if(!map)return;
+    const pts=list.filter(n=>n.lat!=null);if(!pts.length)return;
+    if(!conf){map.easeTo({center:[10,22],zoom:phone.matches?.6:1.1,duration:still?0:700});return}
+    const b=new maplibregl.LngLatBounds();pts.forEach(n=>b.extend([n.lon,n.lat]));
+    map.fitBounds(b,{padding:30,maxZoom:5,duration:still?0:700});
+  }
+  function programme(){
+    const list=FCW.nationFixtures(D,conf?inConf(conf):null).slice(0,phone.matches?6:9);
+    $('#programme').innerHTML=FCW.nationFixturesHTML(D,list,conf?FCW.confName(conf)+': coming up':'Internationals coming up');
+  }
+  function render(){conf=route();drawChips();programme();page()}
+  addEventListener('hashchange',()=>{sort={k:'rank',dir:1};render();scrollTo({top:0,behavior:still?'auto':'smooth'})});
+  render();
+  FCW.feedLine(D);
+  FCW.attachNationSearch(D,$('#q'),$('#results'));
+
+  if(window.maplibregl){
+    await FCW.loadFlags(D.nations);
+    map=FCW.makeNationMap('map',{nations:D.nations,scale:.8,labelsFrom:3.5,scaleBar:false,cooperative:phone.matches,
+      onClick:id=>{const n=D.byId[id];if(!conf||n.conf!==conf||phone.matches){location.href='/nation/#'+id;return}pick(n,false)},
+      onReady:()=>{FCW.dimConf(map,conf||'all');if(sel)map.select(sel.id)}});
+    map.once('load',()=>fitTo(conf?inConf(conf):D.nations));
+  }
+})().catch(e=>{document.getElementById('page').innerHTML='<p class="empty">The nations didn’t load. Check your connection and reload the page.</p>';console.error(e)});
+FCW.registerSW();
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@ import json, re, sys, time, datetime, pathlib, urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PUB = ROOT / "public" / "data"
 BASE = "https://site.api.espn.com/apis"
-ESPN_LEAGUES = ["eng.1", "eng.2", "esp.1", "ita.1", "ger.1", "fra.1", "sco.1", "swe.1", "den.1", "por.1", "tur.1", "usa.1"]
+ESPN_LEAGUES = ["eng.1", "eng.2", "esp.1", "ita.1", "ger.1", "ger.2", "fra.1", "ned.1", "sco.1", "swe.1", "den.1", "por.1", "bel.1", "tur.1", "usa.1", "mex.1", "bra.1", "arg.1"]
 POS = {"Goalkeeper": "GK", "Defender": "DF", "Midfielder": "MF", "Forward": "FW", "Attacker": "FW"}
 
 
@@ -40,7 +40,7 @@ def main():
             continue
         rows = []
         for ch in d["children"]:
-            conf = (ch.get("name") or "").replace(" Conference", "") if len(d["children"]) > 1 else None
+            conf = (ch.get("name") or "").replace(" Conference", "").replace("Group ", "Zone ") if len(d["children"]) > 1 else None
             for e in ch["standings"]["entries"]:
                 st = {s["name"]: s.get("displayValue") for s in e["stats"]}
                 rows.append({"id": e["team"]["id"], "name": e["team"]["displayName"], "rank": int(st.get("rank") or 0),
