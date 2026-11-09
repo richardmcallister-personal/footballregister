@@ -346,7 +346,7 @@ FCW.nationFixturesHTML=function(D,list,title){
   if(!list.length)return '';
   const day=t=>new Date(t).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'}),tm=t=>new Date(t).toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
   return `<section class="fixtures nat wrap" aria-label="${esc(title)}"><h2 class="big">${esc(title)}</h2><ul>
-    ${list.map(f=>`<li><a href="/nation/#${f.h.id}"><img src="${FCW.flag(f.h)}" alt=""><span class="hn">${esc(f.h.name)}</span><time datetime="${esc(f.date)}" title="${esc(FCW.shortComp(f.comp||''))}"><b>${day(f.t)}</b>${tm(f.t)}</time><span class="an">${esc(f.a.name)}</span><img src="${FCW.flag(f.a)}" alt=""></a></li>`).join('')}
+    ${list.map(f=>`<li><a href="/nation/#${f.h.id}"><span class="mk">${FCW.nmarks(f.h)}</span><span class="hn">${esc(f.h.name)}</span><time datetime="${esc(f.date)}" title="${esc(FCW.shortComp(f.comp||''))}"><b>${day(f.t)}</b>${tm(f.t)}</time><span class="an">${esc(f.a.name)}</span><span class="mk rev">${FCW.nmarks(f.a)}</span></a></li>`).join('')}
   </ul></section>`;
 };
 FCW.attachNationSearch=function(D,input,list,onPick){

@@ -187,7 +187,7 @@ footer.colophon b{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 /* nations: flags are landscape, so they get their own frame where crests are round */
-.flagimg,.head.nat img:not(.ncrest),.fixtures.nat img,.results .flag,.club.nat img:not(.ncrest),table.ref .club.nat img:not(.ncrest){width:auto;aspect-ratio:3/2;object-fit:cover;border:1px solid var(--border);background:#fff}
+.flagimg,.head.nat img:not(.ncrest),.fixtures.nat img:not(.ncrest),.results .flag,.club.nat img:not(.ncrest),table.ref .club.nat img:not(.ncrest){width:auto;aspect-ratio:3/2;object-fit:cover;border:1px solid var(--border);background:#fff}
 .head.nat img:not(.ncrest){width:66px;height:44px}
 .club.nat img:not(.ncrest){width:27px;height:18px}
 /* the association crest, shown beside the flag: square, unframed */
@@ -197,7 +197,14 @@ footer.colophon b{color:var(--ink)}
 .cover .cc.flag{display:flex;align-items:flex-end;gap:12px}
 .cover .cc.flag .ncrest{width:56px;height:56px;border:0;background:none;filter:drop-shadow(0 3px 8px rgba(0,0,0,.45))}
 .results .flag,.near.nat img{width:27px;height:18px}
-.fixtures.nat img{width:42px;height:28px}
+.fixtures.nat img:not(.ncrest){width:36px;height:24px}
+/* each side of an international: flag outermost, crest beside the name */
+.fixtures.nat a{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr) auto}
+.fixtures.nat .mk{display:flex;align-items:center;gap:6px;flex:none}
+.fixtures.nat .mk.rev{flex-direction:row-reverse}
+.fixtures.nat .mk .ncrest{width:24px;height:24px}
+/* narrow rows: the flag alone identifies the side, so the crest steps aside */
+@media (max-width:560px){.fixtures.nat .mk .ncrest{display:none}}
 .cover .cc.flag img{width:120px;height:80px;object-fit:cover;border:2px solid rgba(255,255,255,.7);filter:drop-shadow(0 3px 8px rgba(0,0,0,.45));background:#fff}
 .nation-cover.bare{height:auto;min-height:0;background:var(--acc);color:var(--acc-ink)}
 .nation-cover.bare .cv{position:static;padding-block:26px}
