@@ -80,7 +80,7 @@ aside{min-width:0}
       b.onclick=()=>{league=k;drawChips();FCW.dimLeague(map,league);fit(clubs.filter(c=>inRegion(c)&&(k==='all'||c.league===k)))};
       chips.appendChild(b)});
   }
-  await Promise.all([FCW.loadCrests(clubs),nations.length?FCW.loadFlags(nations):0]);
+  await Promise.all([FCW.loadCrests(clubs),nations.length?FCW.loadNationCrests(nations):0]);
   map=FCW.makeMap('map',{clubs,nations,scale:.9,labelsFrom:4,
     addLayers:(m,o)=>{FCW.addClubLayers(m,o);if(nations.length)FCW.addNationLayers(m,{...o,labelsFrom:4,onClick:id=>select(ND.byId[id],false)})},
     onClick:id=>select(byId[id],false),

@@ -104,7 +104,7 @@ table.ref.mini td.last{color:var(--mute);font-size:12.5px}
   function h2hRows(ids){
     const H=(D.h2h&&D.h2h[n.id])||{};
     return `<table class="ref mini"><thead><tr><th>Opponent</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n wide">GF</th><th class="n wide">GA</th><th>Last</th></tr></thead><tbody>
-      ${ids.map(id=>{const o=D.byId[id],x=H[id];if(!o||!x)return '';return `<tr><td><a class="club nat" href="/nation/#${o.id}"><img src="${FCW.flag(o)}" alt=""><span>${esc(o.name)}</span></a></td><td class="n">${x[0]}</td><td class="n b">${x[1]}</td><td class="n">${x[2]}</td><td class="n">${x[3]}</td><td class="n wide">${x[4]}</td><td class="n wide">${x[5]}</td><td class="last">${esc(x[7])} · ${esc(x[6].slice(0,4))}</td></tr>`}).join('')}
+      ${ids.map(id=>{const o=D.byId[id],x=H[id];if(!o||!x)return '';return `<tr><td><a class="club nat" href="/nation/#${o.id}">${FCW.nmarks(o)}<span>${esc(o.name)}</span></a></td><td class="n">${x[0]}</td><td class="n b">${x[1]}</td><td class="n">${x[2]}</td><td class="n">${x[3]}</td><td class="n wide">${x[4]}</td><td class="n wide">${x[5]}</td><td class="last">${esc(x[7])} · ${esc(x[6].slice(0,4))}</td></tr>`}).join('')}
       </tbody></table>`;
   }
   function h2hHTML(){
@@ -179,7 +179,7 @@ table.ref.mini td.last{color:var(--mute);font-size:12.5px}
   async function drawMap(){
     if(!window.maplibregl||n.lat==null)return;
     if(map){try{map.remove()}catch(e){}map=null}
-    await FCW.loadFlags(D.nations);
+    await FCW.loadNationCrests(D.nations);
     map=FCW.makeNationMap('map',{nations:D.nations,center:[n.lon,n.lat],zoom:n.pin==='stadium'?4.2:3.2,scale:.9,labelsFrom:3,cooperative:true,
       onClick:id=>{if(id!==n.id)location.hash=id},onReady:()=>map.select(n.id)});
     map.select(n.id);

@@ -273,6 +273,11 @@ FCW.loadNations=async function(extra=[]){
   return D;
 };
 FCW.flag=n=>'/img/flags/'+n.id+'.png';
+// association crest: files are named by an ascii slug of the nation's name
+FCW.nslug=n=>n.name.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+FCW.ncrest=n=>'/img/national-crests/'+FCW.nslug(n)+'.png';
+// flag then crest, the pair used wherever a nation is named
+FCW.nmarks=(n,cls='')=>`<img class="flagimg${cls?' '+cls:''}" src="${FCW.flag(n)}" alt=""><img class="ncrest${cls?' '+cls:''}" src="${FCW.ncrest(n)}" alt="" loading="lazy">`;
 FCW.nationLive=(D,n)=>D.live.teams[n.espn_id]||{competitions:[],next:null};
 FCW.refreshNation=async function(D,n){
   const s=await j(`${BASE}/site/v2/sports/soccer/all/teams/${n.espn_id}/schedule?fixture=true`);
@@ -309,20 +314,20 @@ FCW.nationNextHTML=function(D,n){
   const nm=(id,name)=>{const t=D.byEspn[id];return t?`<a href="/nation/#${t.id}">${esc(t.name)}</a>`:esc(name)};
   return `<div class="next"><b>${nm(x.home_id,x.home)} v ${nm(x.away_id,x.away)}</b><span>${esc(FCW.fmtDate(x.date))}${x.venue?' · '+esc(x.venue):''}${x.comp?' · '+esc(FCW.shortComp(x.comp)):''}</span></div>`;
 };
-FCW.nationHeadHTML=(D,n,tag='h2')=>`<div class="head nat"><img src="${FCW.flag(n)}" alt=""><div><${tag}>${esc(n.name)}</${tag}><div class="sub">${esc(FCW.confName(n.conf))}${n.rank?' · FIFA ranking '+FCW.ord(n.rank):''}${n.nickname?' · '+esc(n.nickname):''}</div></div></div>`;
+FCW.nationHeadHTML=(D,n,tag='h2')=>`<div class="head nat">${FCW.nmarks(n)}<div><${tag}>${esc(n.name)}</${tag}><div class="sub">${esc(FCW.confName(n.conf))}${n.rank?' · FIFA ranking '+FCW.ord(n.rank):''}${n.nickname?' · '+esc(n.nickname):''}</div></div></div>`;
 FCW.groundLine=n=>n.venues&&n.venues.length?'Various grounds, most often in '+n.venues.map(esc).join(', '):(n.stadium?esc(n.stadium)+(n.capacity?', '+fmt(n.capacity):''):'');
 FCW.nationCoverHTML=function(D,n){
   const bits=[esc(n.conf)+(n.conf_long?' · '+esc(n.conf_long):''),n.rank?'FIFA ranking '+FCW.ord(n.rank):'',n.has_photo?FCW.groundLine(n):''].filter(Boolean);
   return `<section class="cover nation-cover${n.has_photo?'':' bare'}" aria-label="${esc(n.name)}">
     ${n.has_photo?`<img class="ph" src="/img/grounds/${n.id}.jpg" alt="${esc(n.stadium)}">`:''}
-    <div class="cv wrap"><span class="cc flag"><img src="${FCW.flag(n)}" alt=""></span>
+    <div class="cv wrap"><span class="cc flag"><img src="${FCW.flag(n)}" alt=""><img class="ncrest" src="${FCW.ncrest(n)}" alt=""></span>
       <div class="ct"><h1>${esc(n.name)}</h1><p>${bits.join(' · ')}</p></div></div>
     ${n.has_photo&&n.stadium_credit?`<a class="credit" href="${esc(n.stadium_credit)}" target="_blank" rel="noopener">${esc(n.stadium)} · Wikimedia</a>`:''}
   </section>`;
 };
 FCW.nationPhotoHTML=n=>n.has_photo?`<figure class="photo"><img src="/img/grounds/${n.id}.jpg" alt="${esc(n.stadium)}" loading="lazy"><figcaption>${esc(n.stadium)}${n.stadium_credit?` · <a href="${esc(n.stadium_credit)}" target="_blank" rel="noopener">photo · Wikimedia</a>`:''}</figcaption></figure>`:'';
 FCW.showNations=function(map,on){
-  for(const id of ['nation-flag','nation-ring']){if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none')}
+  for(const id of ['nation-crest','nation-ring']){if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none')}
   for(const id of ['club-crest','club-halo']){if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'none':'visible')}
 };
 // upcoming internationals where both sides are in the register
@@ -353,36 +358,36 @@ FCW.attachNationSearch=function(D,input,list,onPick){
   input.addEventListener('keydown',e=>{if(e.key==='Escape'){list.hidden=true;input.value=''}});
   document.addEventListener('click',e=>{if(!e.target.closest('.search'))list.hidden=true});
 };
-// flags as map markers: each drawn onto a small framed canvas so it reads at any size
-const flagImgs={};
-FCW.loadFlags=nations=>Promise.all(nations.map(n=>flagImgs[n.id]?0:new Promise(res=>{const im=new Image();im.onload=()=>{
-  const W=84,H=60,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
-  g.fillStyle='#FFFFFF';g.fillRect(0,0,W,H);g.drawImage(im,4,4,W-8,H-8);g.strokeStyle='rgba(20,18,14,.55)';g.lineWidth=2;g.strokeRect(1,1,W-2,H-2);
-  flagImgs[n.id]=g.getImageData(0,0,W,H);res()};im.onerror=res;im.src=FCW.flag(n)})));
+// association crests as map markers, as clubs use their crests
+const ncrestImgs={};
+FCW.loadNationCrests=nations=>Promise.all(nations.map(n=>ncrestImgs[n.id]?0:new Promise(res=>{const im=new Image();
+  im.onload=()=>{ncrestImgs[n.id]=im;res()};im.onerror=res;im.src=FCW.ncrest(n)})));
 FCW.addNationLayers=function(map,opts){
   if(map.getSource('nations'))return;
   const css=FCW.css,s=opts.scale||1;
-  for(const id in flagImgs){if(!map.hasImage('flag-'+id))map.addImage('flag-'+id,flagImgs[id],{pixelRatio:2})}
+  for(const id in ncrestImgs){if(!map.hasImage('ncrest-'+id))map.addImage('ncrest-'+id,ncrestImgs[id],{pixelRatio:2})}
   map.addSource('nations',{type:'geojson',promoteId:'id',data:{type:'FeatureCollection',features:opts.nations.filter(n=>n.lat!=null).map(n=>({type:'Feature',geometry:{type:'Point',coordinates:[n.lon,n.lat]},
-    properties:{id:n.id,name:n.name,conf:n.conf,rank:n.rank||300,icon:'flag-'+n.id}}))}});
+    properties:{id:n.id,name:n.name,conf:n.conf,rank:n.rank||300,icon:'ncrest-'+n.id}}))}});
   map.addLayer({id:'nation-ring',type:'circle',source:'nations',paint:{
-    'circle-color':css('--land'),'circle-opacity':['case',['boolean',['feature-state','sel'],false],1,0],
-    'circle-radius':['interpolate',['linear'],['zoom'],1,16*s,4,22*s,8,30*s],
-    'circle-stroke-color':css('--ring'),'circle-stroke-width':['case',['boolean',['feature-state','sel'],false],3,0]}});
-  map.addLayer({id:'nation-flag',type:'symbol',source:'nations',layout:{
-    'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],1,.34*s,4,.5*s,8,.8*s],
+    'circle-color':css('--land'),
+    'circle-radius':['interpolate',['linear'],['zoom'],1,11*s,4,15*s,8,21*s],
+    'circle-stroke-color':['case',['boolean',['feature-state','sel'],false],css('--ring'),css('--border')],
+    'circle-stroke-width':['case',['boolean',['feature-state','sel'],false],3,1]}});
+  map.addLayer({id:'nation-crest',type:'symbol',source:'nations',layout:{
+    'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],1,.3*s,4,.42*s,8,.6*s],
     'icon-allow-overlap':true,'icon-ignore-placement':true,'symbol-sort-key':['get','rank'],
     'text-field':['step',['zoom'],'',opts.labelsFrom||4,['get','name']],'text-font':['Noto Sans Bold'],'text-size':12,
     'text-anchor':'top','text-offset':[0,1.1],'text-optional':true},
     paint:{'text-color':css('--ink'),'text-halo-color':css('--land'),'text-halo-width':1.6}});
-  if(opts.onClick){map.on('click','nation-flag',e=>{const f=e.features&&e.features[0];if(f)opts.onClick(f.properties.id)});
-    map.on('mouseenter','nation-flag',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','nation-flag',()=>map.getCanvas().style.cursor='')}
+  if(opts.onClick){for(const id of ['nation-crest','nation-ring']){
+    map.on('click',id,e=>{const f=e.features&&e.features[0];if(f)opts.onClick(f.properties.id)});
+    map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave',id,()=>map.getCanvas().style.cursor='')}}
 };
 FCW.dimConf=function(map,conf){
-  if(!map.getLayer('nation-flag'))return;
+  if(!map.getLayer('nation-crest'))return;
   const on=['any',['==',conf,'all'],['==',['get','conf'],conf]];
-  map.setPaintProperty('nation-flag','icon-opacity',['case',on,1,.14]);
-  map.setPaintProperty('nation-flag','text-opacity',['case',on,1,0]);
+  map.setPaintProperty('nation-crest','icon-opacity',['case',on,1,.14]);
+  map.setPaintProperty('nation-crest','text-opacity',['case',on,1,0]);
 };
 FCW.makeNationMap=(el,opts)=>FCW.makeMap(el,{...opts,source:'nations',addLayers:FCW.addNationLayers,minZoom:1,zoom:opts.zoom||1.4,center:opts.center||[10,20]});
 

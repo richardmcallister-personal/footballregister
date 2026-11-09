@@ -111,7 +111,7 @@ table.ref td.coach{max-width:18ch;overflow:hidden;text-overflow:ellipsis}
     return `<div class="tw"><table class="ref"><thead><tr>${COLS.map(c=>`<th class="${c.n?'n':''} ${c.wide?'wide':''}" scope="col"><button type="button" data-k="${c.k}" ${sort.k===c.k?`aria-sort="${sort.dir>0?'ascending':'descending'}"`:''}>${c.t}</button></th>`).join('')}</tr></thead><tbody>
       ${s.map(n=>`<tr class="${n.rank===1?'zone-top':''} ${sel&&sel.id===n.id?'sel':''}" data-id="${n.id}" tabindex="0">
         <td class="n b">${n.rank||'—'}</td>
-        <td><a class="club nat" href="/nation/#${n.id}"><img src="${FCW.flag(n)}" alt=""><span>${esc(n.name)}</span></a></td>
+        <td><a class="club nat" href="/nation/#${n.id}">${FCW.nmarks(n)}<span>${esc(n.name)}</span></a></td>
         <td class="n">${n.rank_pts?n.rank_pts.toFixed(0):'—'}</td><td class="n wide">${FCW.move(n.rank_move)}</td>
         <td class="wide mute">${esc(n.conf)}</td>
         <td class="n wide">${n.wc.apps||''}</td><td class="n b">${n.wc.titles||''}</td>
@@ -175,7 +175,7 @@ table.ref td.coach{max-width:18ch;overflow:hidden;text-overflow:ellipsis}
   FCW.attachNationSearch(D,$('#q'),$('#results'));
 
   if(window.maplibregl){
-    await FCW.loadFlags(D.nations);
+    await FCW.loadNationCrests(D.nations);
     map=FCW.makeNationMap('map',{nations:D.nations,scale:.8,labelsFrom:3.5,scaleBar:false,cooperative:phone.matches,
       onClick:id=>{const n=D.byId[id];if(!conf||n.conf!==conf||phone.matches){location.href='/nation/#'+id;return}pick(n,false)},
       onReady:()=>{FCW.dimConf(map,conf||'all');if(sel)map.select(sel.id)}});
