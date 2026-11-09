@@ -5,8 +5,8 @@ const root=document.documentElement;
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const fmt=n=>n==null||n===''?'—':Number(n).toLocaleString('en-GB');
 FCW.esc=esc;FCW.fmt=fmt;
-FCW.ORDER=['eng.1','eng.2','esp.1','ita.1','ger.1','ger.2','fra.1','ned.1','por.1','bel.1','tur.1','aut.1','gre.1','sco.1','den.1','nor.1','swe.1','irl.1','usa.1','mex.1','bra.1','arg.1'];
-FCW.RELEG={'eng.1':3,'eng.2':3,'tur.1':3,'esp.1':3,'ita.1':3,'ger.1':2,'fra.1':2,'sco.1':1,'irl.1':1,'swe.1':1,'den.1':1,'por.1':2,'usa.1':0,'ger.2':2,'ned.1':1,'bel.1':1,'mex.1':0,'bra.1':4,'arg.1':0,'aut.1':1,'gre.1':2,'nor.1':2};
+FCW.ORDER=['eng.1','eng.2','eng.3','esp.1','esp.2','ita.1','ita.2','ger.1','ger.2','fra.1','fra.2','ned.1','por.1','bel.1','tur.1','aut.1','gre.1','sco.1','sco.2','den.1','nor.1','swe.1','irl.1','usa.1','mex.1','bra.1','arg.1'];
+FCW.RELEG={'eng.1':3,'eng.2':3,'tur.1':3,'esp.1':3,'ita.1':3,'ger.1':2,'fra.1':2,'sco.1':1,'irl.1':1,'swe.1':1,'den.1':1,'por.1':2,'usa.1':0,'ger.2':2,'ned.1':1,'bel.1':1,'mex.1':0,'bra.1':4,'arg.1':0,'aut.1':1,'gre.1':2,'nor.1':2,'sco.2':1,'eng.3':4,'esp.2':4,'ita.2':3,'fra.2':2};
 FCW.region=(D,k)=>(D.L[k]&&D.L[k].region)||'eu';
 FCW.confLabel=cf=>/^(Eastern|Western)$/.test(cf)?cf+' Conference':cf;
 FCW.slug=k=>k.replace('.','-');           // eng.1 -> eng-1 (safe in a URL hash)
