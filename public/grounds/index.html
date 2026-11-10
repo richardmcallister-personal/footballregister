@@ -106,6 +106,7 @@ aside{min-width:0}
   $('#rEU').onclick=()=>setRegion('eu');$('#rNA').onclick=()=>setRegion('na');$('#rNT').onclick=()=>setRegion('nt');
   if(!nations.length)$('#rNT').hidden=true;
 
+  const freshened=new Set();  // one live refresh per nation; re-rendering must not refetch
   function select(c,fly){
     if(!c)return;
     if(isNation(c)){
@@ -119,7 +120,8 @@ aside{min-width:0}
       $('#zoomHere').onclick=()=>map.flyTo({center:[c.lon,c.lat],zoom:c.pin==='stadium'?15.5:6,duration:still?0:1200});
       try{history.replaceState(null,'','#'+c.id)}catch(e){}
       if(fly)map.flyTo({center:[c.lon,c.lat],zoom:Math.max(map.getZoom(),c.pin==='stadium'?11:5),duration:still?0:1000});
-      FCW.refreshNation(ND,c).then(()=>{if(selected===c)select(c,false)}).catch(()=>{});
+      if(!freshened.has(c.id)){freshened.add(c.id);
+        FCW.refreshNation(ND,c).then(()=>{if(selected===c)select(c,false)}).catch(()=>{})}
       return;
     }
     if(region==='nt'||!inRegion(c)){region=NA(c)?'na':'eu';paintRegion();league='all';drawChips();FCW.showNations(map,false);FCW.dimLeague(map,league)}
