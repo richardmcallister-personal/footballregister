@@ -135,11 +135,20 @@ FCW.fixtures=function(D,leagues){
     const k=n.home_id+'-'+n.away_id+'-'+n.date;if(seen.has(k))continue;seen.add(k);
     out.push({...n,t,h,a});
   }
-  return out.sort((x,y)=>x.t-y.t);
+  out.sort((x,y)=>x.t-y.t);
+  // a competitive programme: friendlies drop out, unless they're all there is (pre-season)
+  const comp=out.filter(f=>!/friendly/i.test(f.comp||''));
+  return comp.length?comp:out;
 };
-// the week ahead from the first fixture, and the one to put on the cover: the biggest ground with a photo
+// the week ahead from the first fixture, and the one to put on the cover.
+// The cover is a photographic plate, so a ground photo (4) comes first: every top-flight club has one,
+// while the newest second tiers have none, and a bare cover is a fallback rather than a choice.
+// Among photographed fixtures the league leaders carry it — top of the table at home (3) outranks one
+// away (2), since the photograph is the home ground — and capacity breaks what's left.
 FCW.week=list=>list.length?list.filter(f=>f.t<list[0].t+7*864e5):[];
-FCW.pickCover=list=>[...list].sort((x,y)=>(y.h.has_photo?1:0)-(x.h.has_photo?1:0)||(y.h.capacity||0)-(x.h.capacity||0))[0]||null;
+FCW.leads=(D,c)=>{const r=FCW.rankOf(D,c);return !!(r&&r.rank===1)};
+FCW.coverWeight=(D,f)=>(f.h.has_photo?4:0)+(FCW.leads(D,f.h)?3:0)+(FCW.leads(D,f.a)?2:0);
+FCW.pickCover=(D,list)=>[...list].sort((x,y)=>FCW.coverWeight(D,y)-FCW.coverWeight(D,x)||(y.h.capacity||0)-(x.h.capacity||0))[0]||null;
 FCW.longDate=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})};
 FCW.coverHTML=function(D,f){
   if(!f)return '';

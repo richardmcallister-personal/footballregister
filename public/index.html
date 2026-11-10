@@ -84,7 +84,7 @@ table.ref td.grd{max-width:16ch;overflow:hidden;text-overflow:ellipsis}
   <p><b>Sources.</b> Historical data (founded, capacity, honours, record holders) compiled from Wikipedia club and stadium pages and official club sites, September 2026; managers and captains verified against league and club announcements for 2026-27. Standings, next fixtures and competition entries are read from ESPN's public soccer feed when the page can reach it; otherwise the embedded snapshot is shown with its date. The League of Ireland is not carried by that feed, so its table and fixtures are a researched snapshot (Wikipedia / leagueofireland.ie, 11 Sep 2026) and do not refresh. "Competitions" lists tournaments with fixtures currently scheduled, so early-round domestic cups appear once draws are made. For MLS clubs the entries show MLS Cup, Supporters' Shield, U.S. Open Cup (Canadian Championship for Canadian clubs) and CONCACAF Champions Cup wins; positions are within conference. European totals: <b>UCL</b> = European Cup + Champions League, <b>UEL</b> = UEFA Cup + Europa League (Fairs Cup excluded), <b>UECL</b> = Conference League. Stadium photographs from Wikimedia Commons (linked on each card, CC-licensed by their authors); crests are the property of the clubs.</p>
 </div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
-<script src="/annual.js?v=7"></script>
+<script src="/annual.js?v=8"></script>
 <script>
 (async function(){
   const $=s=>document.querySelector(s),esc=FCW.esc,fmt=FCW.fmt;
@@ -199,7 +199,7 @@ table.ref td.grd{max-width:16ch;overflow:hidden;text-overflow:ellipsis}
     const all=FCW.fixtures(D,lg?[lg]:null),wk=FCW.week(all);
     // a thin week (an international break, a lone midweek game) widens to the fixtures coming up
     const week=wk.length>=4?wk:all.slice(0,lg?11:40);
-    const cover=FCW.pickCover(lg?week:week.filter(f=>BIG.includes(f.h.league)))||FCW.pickCover(week);
+    const cover=FCW.pickCover(D,lg?week:week.filter(f=>BIG.includes(f.h.league)))||FCW.pickCover(D,week);
     const rest=week.filter(f=>f!==cover);
     const list=lg?rest:[...rest].sort((x,y)=>(BIG.includes(y.h.league)-BIG.includes(x.h.league))||(y.h.capacity||0)-(x.h.capacity||0)).slice(0,phone.matches?6:9).sort((x,y)=>x.t-y.t);
     const soon=week.every(f=>f.t-Date.now()<7*864e5);
