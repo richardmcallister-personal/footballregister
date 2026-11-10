@@ -174,6 +174,25 @@ h2.big{font:800 40px/1 var(--display);margin:28px 0 6px}
 }
 
 footer.colophon{border-top:3px solid var(--ink);margin-top:40px}
+/* site footer: a dark band above the sources note — brand, sections, and the other .wiki sites.
+   It keeps the cover plate's ink in both editions, so --bare and --on-photo are deliberate here. */
+.sitefoot{background:var(--bare);color:var(--on-photo-2)}
+.sitefoot .sf{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,2.3fr) minmax(0,1.1fr);gap:28px 32px;padding-block:30px 34px}
+.sitefoot h2{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-photo);margin:0 0 10px}
+.sitefoot ul{list-style:none;margin:0;padding:0}
+.sitefoot li a{display:inline-flex;align-items:center;min-height:30px;color:var(--on-photo-2);text-decoration:none}
+.sitefoot li a:hover{color:var(--on-photo);text-decoration:underline}
+.sitefoot .fbrand .fname{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:30px;line-height:1;color:var(--on-photo);text-decoration:none}
+.sitefoot .fbrand .fname i{font-style:normal;color:var(--acc)}
+.sitefoot .fbrand .fname img{width:40px;height:40px;border:1px solid rgba(255,255,255,.2)}
+.sitefoot .fbrand p{margin:12px 0 0;max-width:38ch;font-size:12.5px;line-height:1.5}
+.sitefoot .fcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.sitefoot .fsis li a{gap:12px;min-height:50px;padding-block:3px}
+.sitefoot .fsis img{width:40px;height:40px;flex:none;border:1px solid rgba(255,255,255,.2)}
+.sitefoot .fsis b{display:block;color:var(--on-photo);font-weight:600;font-size:14px}
+.sitefoot .fsis small{display:block;font-size:12px;color:var(--on-photo-2)}
+@media (max-width:1099px){.sitefoot .sf{grid-template-columns:1fr 1fr}.sitefoot .fcols{grid-column:1/-1;order:3}}
+@media (max-width:640px){.sitefoot .sf{grid-template-columns:1fr;gap:24px}.sitefoot .fcols{order:0;grid-template-columns:1fr 1fr}.sitefoot .fbrand .fname{font-size:26px}}
 footer.colophon .wrap{padding-block:16px 40px;font-size:13px;color:var(--mute);display:grid;gap:10px;max-width:1440px}
 footer.colophon p{margin:0;max-width:110ch}
 footer.colophon b{color:var(--ink)}

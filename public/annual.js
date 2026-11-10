@@ -391,6 +391,29 @@ FCW.dimConf=function(map,conf){
 };
 FCW.makeNationMap=(el,opts)=>FCW.makeMap(el,{...opts,source:'nations',addLayers:FCW.addNationLayers,minZoom:1,zoom:opts.zoom||1.4,center:opts.center||[10,20]});
 
+// ---------- site footer: the sections, the leagues, the nations, and the other .wiki sites ----------
+FCW.SITES=[['https://manutd.wiki/','Manchester United','manutd.wiki','manutd'],
+  ['https://irelandfootball.wiki/','Ireland Football','irelandfootball.wiki','irelandfootball'],
+  ['https://irelandrugby.wiki/','Ireland Rugby','irelandrugby.wiki','irelandrugby']];
+FCW.siteFooter=function(){
+  const f=document.querySelector('footer.colophon');if(!f||f.querySelector('.sitefoot'))return;
+  const col=(h,links)=>`<div class="fcol"><h2>${esc(h)}</h2><ul>${links.map(l=>`<li><a href="${l[0]}">${esc(l[1])}</a></li>`).join('')}</ul></div>`;
+  const d=document.createElement('div');d.className='sitefoot';
+  d.innerHTML=`<div class="wrap sf">
+    <div class="fbrand"><a class="fname" href="/"><img src="/apple-touch-icon.png" alt="" width="40" height="40">footballclub<i>.wiki</i></a>
+      <p>A football annual: 494 clubs across twenty-seven leagues in Europe and the Americas, every ground on the map, and all 211 FIFA nations.</p></div>
+    <div class="fcols">
+      ${col('Sections',[['/','Leagues and tables'],['/nations/','Nations'],['/worldcup/','World Cup 2026'],['/grounds/','Grounds map']])}
+      ${col('Leagues',[['/#eng-1','Premier League'],['/#esp-1','La Liga'],['/#ita-1','Serie A'],['/#ger-1','Bundesliga'],['/#fra-1','Ligue 1']])}
+      ${col('Confederations',[['/nations/#UEFA','UEFA'],['/nations/#CONMEBOL','CONMEBOL'],['/nations/#CONCACAF','CONCACAF'],['/nations/#CAF','CAF'],['/nations/#AFC','AFC']])}
+    </div>
+    <div class="fsis"><h2>Other sites</h2><ul>${FCW.SITES.map(x=>`<li><a href="${x[0]}" target="_blank" rel="noopener">
+      <img src="/img/sites/${x[3]}.png" alt="" width="40" height="40" loading="lazy" decoding="async">
+      <span><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span></a></li>`).join('')}</ul></div>
+  </div>`;
+  f.insertBefore(d,f.firstChild);
+};
 FCW.registerSW=()=>{if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))};
 window.FCW=FCW;
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',FCW.siteFooter);else FCW.siteFooter();
 })();
