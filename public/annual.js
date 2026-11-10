@@ -394,7 +394,8 @@ FCW.makeNationMap=(el,opts)=>FCW.makeMap(el,{...opts,source:'nations',addLayers:
 // ---------- site footer: the sections, the leagues, the nations, and the other .wiki sites ----------
 FCW.SITES=[['https://manutd.wiki/','Manchester United','manutd.wiki','manutd'],
   ['https://irelandfootball.wiki/','Ireland Football','irelandfootball.wiki','irelandfootball'],
-  ['https://irelandrugby.wiki/','Ireland Rugby','irelandrugby.wiki','irelandrugby']];
+  ['https://irelandrugby.wiki/','Ireland Rugby','irelandrugby.wiki','irelandrugby'],
+  ['https://limerickhurling.wiki/','Limerick Hurling','limerickhurling.wiki','limerickhurling']];
 FCW.siteFooter=function(){
   const f=document.querySelector('footer.colophon');if(!f||f.querySelector('.sitefoot'))return;
   const col=(h,links)=>`<div class="fcol"><h2>${esc(h)}</h2><ul>${links.map(l=>`<li><a href="${l[0]}">${esc(l[1])}</a></li>`).join('')}</ul></div>`;
