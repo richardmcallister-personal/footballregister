@@ -22,10 +22,12 @@ public/            the site — deploy this folder as-is
   data/h2h.json       head-to-head among FIFA members [P,W,D,L,GF,GA,last date,last score,tournament]
   data/worldcup2026.json  groups, bracket and results of the 2026 World Cup
   data/fixtures.json  every upcoming home fixture in the register (45 days), each with the time it
-                      was last read from ESPN; used by near/ (refreshed daily)
+                      was last read from ESPN and, where ESPN has one, a resale listing; used by
+                      near/ (refreshed daily)
   nations/ nation/ worldcup/  the national-team pages (#uefa…, #n<espn_id>)
   near/            a match near me: a city or your location, a weekend, every club at home within
-                   25/50/100 km, with kickoff in the ground's own time zone (#<city-country>)
+                   25/50/100 km, with kickoff in the ground's own time zone (#<city-country>) and a
+                   link to the club's ticket page where we hold one
   img/flags/          n<espn_id>.png flags (ESPN)
   data/world.json     1:50m basemap (TopoJSON), used only by the canvas fallback
   img/crests/  img/grounds/  img/flags/
@@ -64,5 +66,6 @@ The League of Ireland is not on that feed: edit `scripts/irl_static.json` to upd
 ## Editing club facts
 
 `public/data/clubs.json` holds founded year, capacity, honours, manager, captain, record holders,
-website and Instagram per club. Edit and push. Photos are Wikimedia Commons (credit link on each
+website, Instagram and ticket page per club. Edit and push. `tickets` is the club's own ticket page
+(398 of 494 clubs); leave it out rather than guess, and `near/` simply shows no link for that club. Photos are Wikimedia Commons (credit link on each
 card); crests belong to the clubs.

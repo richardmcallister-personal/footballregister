@@ -7,7 +7,7 @@ Run daily by .github/workflows/refresh.yml. The League of Ireland is not carried
 so its table/fixtures come from scripts/irl_static.json (edit by hand or extend this script).
 No API key needed. Standard library only.
 """
-import json, re, sys, time, datetime, pathlib, urllib.request
+import json, re, sys, time, datetime, pathlib, urllib.request, urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PUB = ROOT / "public" / "data"
@@ -42,11 +42,31 @@ def home_fixtures(tid, sched, checked):
         away = next(x for x in comp["competitors"] if x["homeAway"] == "away")
         if home["team"]["id"] != tid:
             continue
-        out.append({"date": ev["date"], "home_id": tid, "away_id": away["team"]["id"],
-                    "home": home["team"]["displayName"], "away": away["team"]["displayName"],
-                    "comp": (ev.get("league") or {}).get("name"),
-                    "venue": (comp.get("venue") or {}).get("fullName"), "checked": checked})
+        row = {"date": ev["date"], "home_id": tid, "away_id": away["team"]["id"],
+               "home": home["team"]["displayName"], "away": away["team"]["displayName"],
+               "comp": (ev.get("league") or {}).get("name"),
+               "venue": (comp.get("venue") or {}).get("fullName"), "checked": checked}
+        resale = resale_link(comp)
+        if resale:
+            row["resale"] = resale
+        out.append(row)
     return out
+
+
+def resale_link(comp):
+    """ESPN carries a resale listing for some fixtures. It is a secondary market, not the club's
+    box office, so near/ only falls back to it and labels it as resale. ESPN's own affiliate
+    parameters are stripped: we pass the reader on, we don't earn from them."""
+    for block in (comp.get("tickets") or []):
+        for link in block.get("links", []):
+            href = link.get("href") or ""
+            if not href.startswith("https://"):
+                continue
+            clean = urllib.parse.urlsplit(href)
+            kept = [(k, v) for k, v in urllib.parse.parse_qsl(clean.query)
+                    if k.lower() not in ("wsuser", "utm_source", "utm_medium", "utm_campaign", "affiliate")]
+            return urllib.parse.urlunsplit(clean._replace(query=urllib.parse.urlencode(kept)))
+    return None
 
 
 def write_fixtures(fix):

@@ -21,10 +21,18 @@ main .wrap{padding-block:18px 40px}
 .rowlab{font:800 12px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 6px}
 .filters{display:grid;gap:12px;margin:16px 0 8px}
 .matches{list-style:none;margin:16px 0 0;padding:0;border-top:2px solid var(--ink)}
-.matches li{border-bottom:1px solid var(--rule)}
-.matches a{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;
+.matches li{border-bottom:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:14px;align-items:center}
+.matches a.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;
   padding:14px 0;color:var(--ink);text-decoration:none;min-height:44px}
-.matches a:hover .tie{text-decoration:underline}
+.matches a.row:hover .tie{text-decoration:underline}
+.matches .tix{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;
+  border:2px solid var(--ink);font:700 13px/1 var(--ui);letter-spacing:.02em;text-transform:uppercase;
+  color:var(--ink);text-decoration:none;white-space:nowrap}
+.matches .tix:hover{background:var(--ink);color:var(--paper)}
+.matches .tix.resale{border:1px solid var(--rule);color:var(--mute);font-weight:600;text-transform:none;
+  letter-spacing:0;font-size:12.5px}
+.matches .tix.resale:hover{background:transparent;color:var(--ink);border-color:var(--ink)}
 .matches img{width:44px;height:44px;object-fit:contain}
 .matches .tie{font:700 18px/1.2 var(--ui);display:block}
 .matches .at{display:block;font-size:13.5px;color:var(--mute);margin-top:3px}
@@ -37,7 +45,9 @@ main .wrap{padding-block:18px 40px}
 .sum b{font-weight:600}
 @media (max-width:620px){
   .find{grid-template-columns:1fr}
-  .matches a{grid-template-columns:34px minmax(0,1fr);row-gap:6px}
+  .matches li{grid-template-columns:1fr;gap:0;padding-bottom:12px}
+  .matches a.row{grid-template-columns:34px minmax(0,1fr);row-gap:6px;padding-bottom:8px}
+  .matches .tix{align-self:start;justify-self:start}
   .matches img{width:34px;height:34px}
   .matches .ko{grid-column:1/-1;text-align:left;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .matches .ko b{display:inline}
@@ -70,7 +80,7 @@ main .wrap{padding-block:18px 40px}
 </div></main>
 <footer class="colophon"><div class="wrap">
   <div class="feed" id="feed"><i></i>Daily snapshot</div>
-  <p><b>Sources.</b> Home fixtures for the 494 clubs in the register, read from ESPN's public feed and rebuilt each morning; each result carries the time its fixture was last read. Kickoff is shown in the ground's own time zone, with your time beside it when they differ. Distances are straight-line from the place you chose to the ground, not travelling distance. Your location, if you use it, stays in the browser — it is never sent anywhere or written into the address bar. The League of Ireland is not carried by that feed and comes from a hand-kept file, so it updates less often.</p>
+  <p><b>Sources.</b> Home fixtures for the 494 clubs in the register, read from ESPN's public feed and rebuilt each morning; each result carries the time its fixture was last read. Kickoff is shown in the ground's own time zone, with your time beside it when they differ. Distances are straight-line from the place you chose to the ground, not travelling distance. Your location, if you use it, stays in the browser — it is never sent anywhere or written into the address bar. The League of Ireland is not carried by that feed and comes from a hand-kept file, so it updates less often. <b>Tickets</b> links go to the club’s own ticket page, which we hold per club rather than per match, so it cannot tell you whether a particular game has sold out. Where we have no official page, ESPN sometimes carries a listing on a third-party resale marketplace: those are marked <b>Resale</b>, are priced in US dollars, and are not the club’s box office. We strip the tracking parameters from them and earn nothing from either link.</p>
 </div></footer>
 <script src="/annual.js?v=9"></script>
 <script>
@@ -114,13 +124,22 @@ main .wrap{padding-block:18px 40px}
     const g=FCW.atGround(f.date,f.h.tz);
     const mine=new Date(f.t).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
     const sameClock=new Date(f.t).toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})===g.time;
-    return `<li><a href="/grounds/#c${f.h.espn_id}">
+    return `<li><a class="row" href="/grounds/#c${f.h.espn_id}">
       <img src="${FCW.crest(f.h)}" alt="">
       <span><span class="tie">${esc(f.h.name)} v ${esc(f.a?f.a.name:f.away)}</span>
         <span class="at">${esc(f.venue||f.h.stadium)}, ${esc(f.h.city)} · ${esc(FCW.shortComp(f.comp||''))} · ${f.km<1?'under 1 km':(f.km<10?f.km.toFixed(1):Math.round(f.km))+' km'} away</span></span>
       <span class="ko"><b>${esc(g.day)} ${esc(g.date)}, ${esc(g.time)}</b>
         <span>${sameClock?'local time':esc(g.zone)+' at the ground · '+esc(mine)+' your time'}</span>
-        <span class="checked">checked ${esc(stamp(f.checked||fx.generated))}</span></span></a></li>`;
+        <span class="checked">checked ${esc(stamp(f.checked||fx.generated))}</span></span></a>${tixHTML(f)}</li>`;
+  }
+  // The club's own ticket page where we have one; ESPN's resale listing only as a fallback,
+  // named as resale so nobody mistakes a touts' marketplace for the box office.
+  function tixHTML(f){
+    if(f.h.tickets) return `<a class="tix" href="${esc(f.h.tickets)}" target="_blank" rel="noopener nofollow"
+      >Tickets<span class="sr"> for ${esc(f.h.name)}, on the club's own site</span></a>`;
+    if(f.resale) return `<a class="tix resale" href="${esc(f.resale)}" target="_blank" rel="noopener nofollow"
+      >Resale<span class="sr"> listing for ${esc(f.h.name)} v ${esc(f.a?f.a.name:f.away)}, on a third-party marketplace</span></a>`;
+    return '';
   }
   function show(){
     const out=$('#out');
@@ -132,7 +151,7 @@ main .wrap{padding-block:18px 40px}
       : `No club in the register is at home within ${km} km of <b>${esc(label)}</b> ${weekend?'that weekend':'in '+esc(when)}.`;
     out.innerHTML=list.length?`<ul class="matches">${list.map(rowHTML).join('')}</ul>`
       :`<p class="empty">Nothing within ${km} km. Try a wider radius, another weekend, or a different city.</p>`;
-    document.title=(found.length?found.length+' matches near ':'A match near ')+label+' · footballclub.wiki';
+    document.title=(found.length?found.length+(found.length===1?' match near ':' matches near '):'A match near ')+label+' · footballclub.wiki';
   }
   function setOrigin(o,name,slug){
     origin={lat:o.lat,lon:o.lon};label=name;

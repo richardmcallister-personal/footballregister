@@ -36,6 +36,13 @@ See README.md for the file layout and data model. This file covers how the site 
   club only so each match appears once with a ground we can place, and stamped with the time it was read
   (`checked`). `python3 scripts/refresh.py fixtures` rebuilds just that file. Each club carries an IANA `tz`
   in `clubs.json`, so `near/` can show kickoff in the ground's own time zone.
+- **Ticket links.** `clubs.json` carries `tickets`: the club's own ticket page, held per club (398 of 494),
+  found by reading each club's homepage navigation and checked by hand. A club with no clean page simply
+  has no field and `near/` shows no link — never guess one. Where ESPN carries a resale listing for a
+  fixture, `refresh.py` stores it on that fixture as `resale`, with the affiliate and `utm_*` parameters
+  stripped; `near/` falls back to it and labels it **Resale** so it is never mistaken for the box office.
+  Club websites come from Wikidata's official-website property (P856), which is more reliable than
+  guessing domains — two earlier guesses had landed on merchandise sites.
 - `refresh.py` is standard-library Python, no API key. It pulls standings, next fixtures and squads
   from ESPN's public soccer API; if a feed fails it keeps the previous data. It also writes
   `public/data/nations_live.json`: next match and competitions for every nation in `nations.json`
