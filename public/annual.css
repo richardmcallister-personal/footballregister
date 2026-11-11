@@ -197,6 +197,16 @@ footer.colophon .wrap{padding-block:16px 40px;font-size:13px;color:var(--mute);d
 footer.colophon p{margin:0;max-width:110ch}
 footer.colophon b{color:var(--ink)}
 
+/* sources note as a disclosure — the long colophon paragraph stays folded until asked for */
+footer.colophon details.srcs summary{display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;list-style:none;color:var(--ink);font-weight:700}
+footer.colophon details.srcs summary::-webkit-details-marker{display:none}
+footer.colophon details.srcs summary::before{content:"";flex:none;width:0;height:0;border-left:6px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent;transition:transform .15s ease}
+footer.colophon details.srcs[open] summary::before{transform:rotate(90deg)}
+footer.colophon details.srcs summary:hover{text-decoration:underline}
+footer.colophon details.srcs summary:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+footer.colophon details.srcs p{margin-top:4px}
+@media (prefers-reduced-motion:reduce){footer.colophon details.srcs summary::before{transition:none}}
+
 @media (max-width:900px){
   .brand{font-size:32px}
   .bar .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1 1 100%}

@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.css">
-<link rel="stylesheet" href="/annual.css?v=6">
+<link rel="stylesheet" href="/annual.css?v=7">
 <script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* Leagues: the reference table, with the selected club's entry and a locator map beside it. */
@@ -81,7 +81,10 @@ table.ref td.grd{max-width:16ch;overflow:hidden;text-overflow:ellipsis}
 </div></main>
 <footer class="colophon"><div class="wrap">
   <div class="feed" id="feed"><i></i>Daily snapshot</div>
-  <p><b>Sources.</b> Historical data (founded, capacity, honours, record holders) compiled from Wikipedia club and stadium pages and official club sites, September 2026; managers and captains verified against league and club announcements for 2026-27. Standings, next fixtures and competition entries are read from ESPN's public soccer feed when the page can reach it; otherwise the embedded snapshot is shown with its date. The League of Ireland is not carried by that feed, so its table and fixtures are a researched snapshot (Wikipedia / leagueofireland.ie, 11 Sep 2026) and do not refresh. "Competitions" lists tournaments with fixtures currently scheduled, so early-round domestic cups appear once draws are made. For MLS clubs the entries show MLS Cup, Supporters' Shield, U.S. Open Cup (Canadian Championship for Canadian clubs) and CONCACAF Champions Cup wins; positions are within conference. European totals: <b>UCL</b> = European Cup + Champions League, <b>UEL</b> = UEFA Cup + Europa League (Fairs Cup excluded), <b>UECL</b> = Conference League. Stadium photographs from Wikimedia Commons (linked on each card, CC-licensed by their authors); crests are the property of the clubs.</p>
+  <details class="srcs">
+    <summary>Sources</summary>
+    <p>Historical data (founded, capacity, honours, record holders) compiled from Wikipedia club and stadium pages and official club sites, September 2026; managers and captains verified against league and club announcements for 2026-27. Standings, next fixtures and competition entries are read from ESPN's public soccer feed when the page can reach it; otherwise the embedded snapshot is shown with its date. The League of Ireland is not carried by that feed, so its table and fixtures are a researched snapshot (Wikipedia / leagueofireland.ie, 11 Sep 2026) and do not refresh. "Competitions" lists tournaments with fixtures currently scheduled, so early-round domestic cups appear once draws are made. For MLS clubs the entries show MLS Cup, Supporters' Shield, U.S. Open Cup (Canadian Championship for Canadian clubs) and CONCACAF Champions Cup wins; positions are within conference. European totals: <b>UCL</b> = European Cup + Champions League, <b>UEL</b> = UEFA Cup + Europa League (Fairs Cup excluded), <b>UECL</b> = Conference League. Stadium photographs from Wikimedia Commons (linked on each card, CC-licensed by their authors); crests are the property of the clubs.</p>
+  </details>
 </div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
 <script src="/annual.js?v=9"></script>
