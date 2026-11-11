@@ -2,7 +2,8 @@
 
 Every club, every ground, every nation. A static site: 494 clubs across twenty-seven leagues in Europe and the
 Americas and all 211 FIFA national teams, with honours, stadiums, managers, captains, record holders, squads,
-standings, the FIFA ranking, head-to-head records, next fixtures and the 2026 World Cup.
+standings, the FIFA ranking, head-to-head records, next fixtures, the 2026 World Cup, and a search for
+a match being played near you.
 
 ## Layout
 
@@ -20,7 +21,11 @@ public/            the site — deploy this folder as-is
   data/nation_squads.json latest squads from Wikipedia, with club_id links into the club register
   data/h2h.json       head-to-head among FIFA members [P,W,D,L,GF,GA,last date,last score,tournament]
   data/worldcup2026.json  groups, bracket and results of the 2026 World Cup
+  data/fixtures.json  every upcoming home fixture in the register (45 days), each with the time it
+                      was last read from ESPN; used by near/ (refreshed daily)
   nations/ nation/ worldcup/  the national-team pages (#uefa…, #n<espn_id>)
+  near/            a match near me: a city or your location, a weekend, every club at home within
+                   25/50/100 km, with kickoff in the ground's own time zone (#<city-country>)
   img/flags/          n<espn_id>.png flags (ESPN)
   data/world.json     1:50m basemap (TopoJSON), used only by the canvas fallback
   img/crests/  img/grounds/  img/flags/

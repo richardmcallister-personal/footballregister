@@ -41,8 +41,8 @@ button{font:inherit;color:inherit}
 .brand{font-family:var(--display);font-weight:700;font-size:40px;line-height:.9;letter-spacing:-.01em;text-decoration:none;display:inline-flex;align-items:end;min-height:44px}
 .brand i{font-style:normal;color:var(--acc)}
 .mast .right{display:flex;align-items:center;gap:6px 18px;flex-wrap:wrap}
-nav.top{display:flex;gap:18px;font-weight:600;font-size:15px}
-nav.top a{text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
+nav.top{display:flex;gap:18px;font-weight:600;font-size:15px;flex-wrap:wrap}
+nav.top a{text-decoration:none;display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
 nav.top a[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--acc)}
 .tools{display:flex;align-items:center;gap:8px}
 .ghost{border:1px solid var(--border);background:transparent;min-height:40px;padding:0 12px;font:600 13px var(--ui);cursor:pointer;color:var(--ink)}

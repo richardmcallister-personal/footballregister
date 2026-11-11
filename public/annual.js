@@ -400,6 +400,101 @@ FCW.dimConf=function(map,conf){
 };
 FCW.makeNationMap=(el,opts)=>FCW.makeMap(el,{...opts,source:'nations',addLayers:FCW.addNationLayers,minZoom:1,zoom:opts.zoom||1.4,center:opts.center||[10,20]});
 
+// ---------- a match near me: home fixtures within a radius, on a chosen weekend ----------
+// fixtures.json carries every upcoming home fixture in the register with the time it was last read.
+FCW.loadFixtures=async function(D){
+  if(D.fx)return D.fx;
+  const f=await (await fetch('/data/fixtures.json')).json();
+  const list=[];
+  for(const x of f.fixtures||[]){
+    const h=D.byId[x.home_id];
+    if(!h||h.lat==null)continue;                       // nothing to place on a map or measure from
+    const t=new Date(x.date).getTime();
+    if(!(t>Date.now()-2*3600e3))continue;              // kicked off more than two hours ago
+    list.push({...x,t,h,a:D.byId[x.away_id]||null});
+  }
+  list.sort((p,q)=>p.t-q.t);
+  list.forEach(FCW.weekendOf);                       // work the weekend out once, not on every filter
+  D.fx={generated:f.generated,days:f.days,list};
+  return D.fx;
+};
+// the calendar date at the ground, not in the reader's own time zone
+const zf={};                                     // one set of formatters per zone, built once
+const fmts=tz=>zf[tz]||(zf[tz]={
+  parts:new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'short',day:'2-digit',month:'short',year:'numeric'}),
+  ymd:new Intl.DateTimeFormat('en-CA',{timeZone:tz}),
+  time:new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit'}),
+  zone:new Intl.DateTimeFormat('en-GB',{timeZone:tz,timeZoneName:'short'})});
+FCW.atGround=function(iso,tz){
+  const d=new Date(iso),f=fmts(tz||'UTC');
+  const p=Object.fromEntries(f.parts.formatToParts(d).map(x=>[x.type,x.value]));
+  return {day:p.weekday,date:`${p.day} ${p.month}`,ymd:f.ymd.format(d),time:f.time.format(d),
+    zone:f.zone.formatToParts(d).find(x=>x.type==='timeZoneName').value};
+};
+// Friday to Sunday at the ground counts as one weekend, keyed by that weekend's Saturday
+FCW.weekendOf=function(f){
+  if(f.wk!==undefined)return f.wk;
+  const g=FCW.atGround(f.date,f.h.tz),[y,m,d]=g.ymd.split('-').map(Number);
+  const noon=new Date(Date.UTC(y,m-1,d,12)),wd=noon.getUTCDay();   // 0 Sun … 6 Sat
+  if(wd!==0&&wd!==5&&wd!==6)return f.wk=null;                      // midweek
+  noon.setUTCDate(noon.getUTCDate()+(wd===5?1:wd===0?-1:0));
+  return f.wk=noon.toISOString().slice(0,10);
+};
+FCW.weekends=function(list,n=6){
+  const by=new Map();
+  for(const f of list){const k=FCW.weekendOf(f);if(k)(by.get(k)||by.set(k,[]).get(k)).push(f)}
+  return [...by.keys()].sort().slice(0,n).map(k=>{
+    const sat=new Date(k+'T12:00:00Z'),sun=new Date(sat.getTime()+864e5);
+    const f=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+    return {key:k,count:by.get(k).length,label:`${f(sat)} – ${f(sun)}`};
+  });
+};
+FCW.near=function(fx,origin,km,weekend){
+  return fx.list.map(f=>({...f,km:FCW.dist(origin,f.h)}))
+    .filter(f=>f.km<=km&&(!weekend||FCW.weekendOf(f)===weekend))
+    .sort((p,q)=>p.t-q.t||p.km-q.km);
+};
+// places to search: every city in the register, and every ground by name.
+// Cities are grouped by name and then by distance, so Córdoba in Spain and Córdoba in Argentina stay apart.
+FCW.WALES=['Cardiff','Swansea','Wrexham','Newport'];
+FCW.CANADA=['Toronto','Montreal','Vancouver'];
+FCW.countryOf=(D,c)=>FCW.WALES.includes(c.city)&&D.L[c.league].country.includes('Wales')?'Wales'
+  :FCW.CANADA.includes(c.city)&&c.league==='usa.1'?'Canada'
+  :D.L[c.league].country.split(' & ')[0];
+FCW.places=function(D){
+  if(D.places)return D.places;
+  const buckets=new Map();
+  for(const c of D.clubs){
+    if(c.lat==null)continue;
+    const k=FCW.placeSlug(c.city||'');
+    (buckets.get(k)||buckets.set(k,[]).get(k)).push(c);
+  }
+  const out=[];
+  for(const [,cl] of buckets){
+    const groups=[];
+    for(const c of cl){                                  // same name, far apart: a different city
+      const g=groups.find(g=>FCW.dist(g[0],c)<60);
+      g?g.push(c):groups.push([c]);
+    }
+    for(const g of groups){
+      const country=FCW.countryOf(D,g[0]);
+      out.push({kind:'city',name:g[0].city,country,club:g[0],n:g.length,
+        lat:g.reduce((s,c)=>s+c.lat,0)/g.length,lon:g.reduce((s,c)=>s+c.lon,0)/g.length,
+        slug:FCW.placeSlug(g[0].city+'-'+country),sub:country+(g.length>1?` · ${g.length} grounds`:'')});
+    }
+  }
+  for(const c of D.clubs)if(c.lat!=null)out.push({kind:'ground',name:c.stadium,country:FCW.countryOf(D,c),
+    lat:c.lat,lon:c.lon,club:c,slug:FCW.placeSlug(c.stadium+'-'+c.name),sub:c.name+' · '+c.city});
+  D.places=out;
+  return out;
+};
+FCW.placeSlug=s=>String(s).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+FCW.findPlaces=(D,q,n=8)=>{
+  const t=q.trim().toLowerCase();if(!t)return [];
+  const hit=p=>[p.name,p.sub,p.club&&p.club.name,p.club&&p.club.city].some(x=>String(x||'').toLowerCase().includes(t));
+  const score=p=>(String(p.name).toLowerCase().startsWith(t)?0:1)+(p.kind==='city'?0:.5);
+  return FCW.places(D).filter(hit).sort((a,b)=>score(a)-score(b)||a.name.length-b.name.length).slice(0,n);
+};
 // ---------- site footer: the sections, the leagues, the nations, and the other .wiki sites ----------
 FCW.SITES=[['https://manutd.wiki/','Manchester United','manutd.wiki','manutd'],
   ['https://irelandfootball.wiki/','Ireland Football','irelandfootball.wiki','irelandfootball'],
@@ -413,7 +508,7 @@ FCW.siteFooter=function(){
     <div class="fbrand"><a class="fname" href="/"><img src="/apple-touch-icon.png" alt="" width="40" height="40">footballclub<i>.wiki</i></a>
       <p>A football annual: 494 clubs across twenty-seven leagues in Europe and the Americas, every ground on the map, and all 211 FIFA nations.</p></div>
     <div class="fcols">
-      ${col('Sections',[['/','Leagues and tables'],['/nations/','Nations'],['/worldcup/','World Cup 2026'],['/grounds/','Grounds map']])}
+      ${col('Sections',[['/','Leagues and tables'],['/nations/','Nations'],['/worldcup/','World Cup 2026'],['/grounds/','Grounds map'],['/near/','A match near me']])}
       ${col('Leagues',[['/#eng-1','Premier League'],['/#esp-1','La Liga'],['/#ita-1','Serie A'],['/#ger-1','Bundesliga'],['/#fra-1','Ligue 1']])}
       ${col('Confederations',[['/nations/#UEFA','UEFA'],['/nations/#CONMEBOL','CONMEBOL'],['/nations/#CONCACAF','CONCACAF'],['/nations/#CAF','CAF'],['/nations/#AFC','AFC']])}
     </div>

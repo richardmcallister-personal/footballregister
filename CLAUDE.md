@@ -2,9 +2,9 @@
 
 Static site: 494 clubs across twenty-seven leagues in Europe and the Americas, plus all 211 FIFA national teams.
 Pages: Leagues (`index.html`), Club (`club/`, `#c<espn_id>`), Grounds (`grounds/`), Nations (`nations/`, `#uefa` etc.),
-Nation (`nation/`, `#n<espn_id>`) and World Cup 2026 (`worldcup/`), sharing `annual.css` and `annual.js` (theme, data,
-live ESPN layer, maps, nation helpers). See README.md for the file layout and data model. This file covers how the
-site is run and how to work on it.
+Nation (`nation/`, `#n<espn_id>`), World Cup 2026 (`worldcup/`) and A match near me (`near/`, `#<city-country>`),
+sharing `annual.css` and `annual.js` (theme, data, live ESPN layer, maps, nation helpers, the near-me search).
+See README.md for the file layout and data model. This file covers how the site is run and how to work on it.
 
 ## Where things live
 
@@ -29,14 +29,19 @@ site is run and how to work on it.
 ## Daily data refresh
 
 - `.github/workflows/refresh.yml` runs `scripts/refresh.py` at 04:15 UTC (and on manual dispatch),
-  then commits `public/data/snapshot.json`, `public/data/rosters.json` and `public/data/nations_live.json` as `footballclub-bot`.
+  then commits `public/data/snapshot.json`, `public/data/rosters.json`, `public/data/fixtures.json` and
+  `public/data/nations_live.json` as `footballclub-bot`.
   Repo Settings → Actions → Workflow permissions is "Read and write" so this push works.
+- `fixtures.json` is every upcoming **home** fixture in the register for the next 45 days, read from the home
+  club only so each match appears once with a ground we can place, and stamped with the time it was read
+  (`checked`). `python3 scripts/refresh.py fixtures` rebuilds just that file. Each club carries an IANA `tz`
+  in `clubs.json`, so `near/` can show kickoff in the ground's own time zone.
 - `refresh.py` is standard-library Python, no API key. It pulls standings, next fixtures and squads
   from ESPN's public soccer API; if a feed fails it keeps the previous data. It also writes
   `public/data/nations_live.json`: next match and competitions for every nation in `nations.json`
   (ESPN schedule by national-team id) and the FIFA ranking read from Wikipedia's
   `Module:SportsRankings/data/FIFA World Rankings` (updated there within a day of each FIFA release).
-  Commit `nations_live.json` with the other two in the workflow.
+  Commit `nations_live.json` with the others in the workflow.
 - National-team facts (`nations.json`: honours, coach, captain, records, grounds, coordinates), squads
   (`nation_squads.json`, latest call-up from Wikipedia with `club_id` where the club is in the register),
   `h2h.json` (all-time head-to-head among FIFA members, computed from the martj42 international results

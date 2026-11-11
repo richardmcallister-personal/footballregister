@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Refresh public/data/snapshot.json, rosters.json and nations_live.json from ESPN's public soccer feed
+"""Refresh public/data/snapshot.json, rosters.json, fixtures.json and nations_live.json from ESPN's
+public soccer feed
 (and the FIFA ranking as kept on Wikipedia).
 
 Run daily by .github/workflows/refresh.yml. The League of Ireland is not carried by ESPN,
@@ -13,6 +14,77 @@ PUB = ROOT / "public" / "data"
 BASE = "https://site.api.espn.com/apis"
 ESPN_LEAGUES = ["eng.1", "eng.2", "esp.1", "ita.1", "ger.1", "ger.2", "fra.1", "ned.1", "sco.1", "swe.1", "den.1", "por.1", "bel.1", "tur.1", "aut.1", "gre.1", "nor.1", "usa.1", "mex.1", "bra.1", "arg.1", "sco.2", "eng.3", "esp.2", "ita.2", "fra.2"]
 POS = {"Goalkeeper": "GK", "Defender": "DF", "Midfielder": "MF", "Forward": "FW", "Attacker": "FW"}
+FIXTURE_DAYS = 45   # how far ahead fixtures.json looks: enough weekends for "a match near me"
+
+
+def now_z():
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def home_fixtures(tid, sched, checked):
+    """Every upcoming home fixture for this club, within the horizon, from its ESPN schedule.
+    Read from the home club only, so each match is listed once and always has a ground we can place."""
+    out = []
+    if not sched:
+        return out
+    limit = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=FIXTURE_DAYS)
+    for ev in sched.get("events", []):
+        comp = ev["competitions"][0]
+        if comp["status"]["type"]["state"] != "pre":
+            continue
+        try:
+            when = datetime.datetime.fromisoformat(ev["date"].replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if when > limit:
+            continue
+        home = next(x for x in comp["competitors"] if x["homeAway"] == "home")
+        away = next(x for x in comp["competitors"] if x["homeAway"] == "away")
+        if home["team"]["id"] != tid:
+            continue
+        out.append({"date": ev["date"], "home_id": tid, "away_id": away["team"]["id"],
+                    "home": home["team"]["displayName"], "away": away["team"]["displayName"],
+                    "comp": (ev.get("league") or {}).get("name"),
+                    "venue": (comp.get("venue") or {}).get("fullName"), "checked": checked})
+    return out
+
+
+def write_fixtures(fix):
+    """fixtures.json: upcoming home fixtures for the register's clubs, each with the time we last read it."""
+    floor = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%MZ")
+    fix = [f for f in fix if f["date"] >= floor]     # a hand-kept feed can go stale; don't carry old matches
+    fix.sort(key=lambda f: (f["date"], f["home"]))
+    json.dump({"generated": now_z(), "days": FIXTURE_DAYS, "fixtures": fix},
+              open(PUB / "fixtures.json", "w"), ensure_ascii=False)
+    print("fixtures:", len(fix))
+
+
+def irl_home_fixtures(checked):
+    """League of Ireland is not on ESPN; its next matches come from the hand-kept file."""
+    path = ROOT / "scripts" / "irl_static.json"
+    if not path.exists():
+        return []
+    out = []
+    for tid, c in json.load(open(path)).items():
+        n = c.get("next")
+        if n and n.get("home") == c["name"]:
+            out.append({"date": n["date"], "home_id": tid, "away_id": None, "home": n["home"], "away": n["away"],
+                        "comp": n.get("comp"), "venue": n.get("venue"), "checked": checked})
+    return out
+
+
+def fixtures_only():
+    """Build fixtures.json on its own, leaving snapshot.json and rosters.json untouched."""
+    clubs = json.load(open(PUB / "clubs.json"))["clubs"]
+    fix = []
+    for c in clubs:
+        if c["league"] not in ESPN_LEAGUES:
+            continue
+        checked = now_z()
+        fix += home_fixtures(c["espn_id"], get(f"{BASE}/site/v2/sports/soccer/all/teams/{c['espn_id']}/schedule?fixture=true"), checked)
+        time.sleep(0.2)
+    fix += irl_home_fixtures(now_z())
+    write_fixtures(fix)
 
 
 def get(url, tries=4):
@@ -92,6 +164,7 @@ def main():
     snap = {"generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "standings": dict(old_snap.get("standings", {})), "teams": dict(old_snap.get("teams", {}))}
     rosters = dict(old_rosters)
+    fix = []
 
     for lg in ESPN_LEAGUES:
         d = get(f"{BASE}/v2/sports/soccer/{lg}/standings")
@@ -112,7 +185,9 @@ def main():
         if c["league"] not in ESPN_LEAGUES:
             continue
         tid = c["espn_id"]
+        checked = now_z()
         s = get(f"{BASE}/site/v2/sports/soccer/all/teams/{tid}/schedule?fixture=true")
+        fix += home_fixtures(tid, s, checked)
         if s is not None:
             comps, nxt = [], None
             for ev in s.get("events", []):
@@ -155,6 +230,8 @@ def main():
             snap["teams"][tid] = {"competitions": c.get("competitions", []), "next": n}
         snap["standings"]["irl.1"] = sorted(rows, key=lambda r: r["rank"])
 
+    fix += irl_home_fixtures(now_z())
+    write_fixtures(fix)
     json.dump(snap, open(PUB / "snapshot.json", "w"), ensure_ascii=False)
     json.dump(rosters, open(PUB / "rosters.json", "w"), ensure_ascii=False)
     print("refreshed", snap["generated"], "teams:", len(snap["teams"]), "rosters:", len(rosters))
@@ -162,4 +239,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "fixtures":
+        fixtures_only()
+    else:
+        main()

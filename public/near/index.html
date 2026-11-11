@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>A match near me · footballclub.wiki</title>
+<meta name="description" content="Find a football match near you: enter a city, pick a weekend, and see every club playing at home within 50 km, with the kickoff time at the ground.">
+<meta name="theme-color" content="#F8F6F1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="/annual.css?v=6">
+<script>try{const t=localStorage.getItem('ecr-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+main .wrap{padding-block:18px 40px}
+.find{display:grid;grid-template-columns:minmax(0,420px) auto;gap:10px;align-items:start;margin-bottom:14px}
+.find .here{border:1px solid var(--border);background:transparent;min-height:46px;padding:0 14px;font:600 14px var(--ui);cursor:pointer;color:var(--ink);white-space:nowrap}
+.find .here:hover{background:var(--tint)}
+.rowlab{font:800 12px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 6px}
+.filters{display:grid;gap:12px;margin:16px 0 8px}
+.matches{list-style:none;margin:16px 0 0;padding:0;border-top:2px solid var(--ink)}
+.matches li{border-bottom:1px solid var(--rule)}
+.matches a{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:14px 0;color:var(--ink);text-decoration:none;min-height:44px}
+.matches a:hover .tie{text-decoration:underline}
+.matches img{width:44px;height:44px;object-fit:contain}
+.matches .tie{font:700 18px/1.2 var(--ui);display:block}
+.matches .at{display:block;font-size:13.5px;color:var(--mute);margin-top:3px}
+.matches .ko{text-align:right;white-space:nowrap}
+.matches .ko b{display:block;font:800 clamp(18px,2.4vw,22px)/1 var(--display);letter-spacing:.01em}
+.matches .ko span{display:block;font-size:12.5px;color:var(--mute);margin-top:4px}
+.matches .yours{font-size:12.5px;color:var(--mute)}
+.matches .checked{display:block;font-size:11.5px;color:var(--mute);margin-top:3px;font-variant-numeric:tabular-nums}
+.sum{font-family:var(--body);margin:0 0 4px}
+.sum b{font-weight:600}
+@media (max-width:620px){
+  .find{grid-template-columns:1fr}
+  .matches a{grid-template-columns:34px minmax(0,1fr);row-gap:6px}
+  .matches img{width:34px;height:34px}
+  .matches .ko{grid-column:1/-1;text-align:left;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .matches .ko b{display:inline}
+  .matches .ko span,.matches .checked{display:inline;margin:0}
+}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <a class="brand" href="/">footballclub<i>.wiki</i></a>
+  <div class="right">
+    <nav class="top" aria-label="Sections"><a href="/">Leagues</a><a href="/nations/">Nations</a><a href="/worldcup/">World Cup</a><a href="/grounds/">Grounds</a><a href="/near/" aria-current="page">Near me</a></nav>
+    <div class="tools"><button class="ghost" id="theme" type="button">Dark mode</button></div>
+  </div>
+</div></header>
+<main><div class="wrap">
+  <h1 class="big" style="font:800 clamp(34px,5vw,56px)/1 var(--display);margin:14px 0 10px">A match near me</h1>
+  <p class="sum" id="sum">Enter a city, pick a weekend, and see who is at home nearby.</p>
+  <div class="find">
+    <div class="search"><label for="q" class="sr">Enter a city or a ground</label>
+      <input id="q" type="search" placeholder="Enter a city or a ground" autocomplete="off" enterkeyhint="search">
+      <ul class="results" id="results" hidden></ul></div>
+    <button class="here" id="here" type="button">Use my location</button>
+  </div>
+  <div class="filters">
+    <div><p class="rowlab" id="wklab">Weekend</p><div class="chips" id="weekends" role="group" aria-labelledby="wklab"></div></div>
+    <div><p class="rowlab" id="kmlab">Within</p><div class="chips" id="radius" role="group" aria-labelledby="kmlab"></div></div>
+  </div>
+  <div id="out"><p class="empty">Loading the fixtures…</p></div>
+</div></main>
+<footer class="colophon"><div class="wrap">
+  <div class="feed" id="feed"><i></i>Daily snapshot</div>
+  <p><b>Sources.</b> Home fixtures for the 494 clubs in the register, read from ESPN's public feed and rebuilt each morning; each result carries the time its fixture was last read. Kickoff is shown in the ground's own time zone, with your time beside it when they differ. Distances are straight-line from the place you chose to the ground, not travelling distance. Your location, if you use it, stays in the browser — it is never sent anywhere or written into the address bar. The League of Ireland is not carried by that feed and comes from a hand-kept file, so it updates less often.</p>
+</div></footer>
+<script src="/annual.js?v=9"></script>
+<script>
+(async function(){
+  const $=s=>document.querySelector(s),esc=FCW.esc;
+  FCW.initTheme();
+  const D=await FCW.load();
+  const fx=await FCW.loadFixtures(D);
+  const KM=[25,50,100],RADIUS='fcw-near-km';
+  let origin=null,weekend=null,km=50,label='';
+  try{const v=+localStorage.getItem(RADIUS);if(KM.includes(v))km=v}catch(e){}
+
+  const weeks=FCW.weekends(fx.list);
+  weekend=weeks.length?weeks[0].key:null;
+  // "This weekend" only when it really is: the Saturday of the reader's current week
+  const now=new Date(),wd=now.getDay(),sat=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate(),12));
+  sat.setUTCDate(sat.getUTCDate()+(wd===0?-1:6-wd));
+  const thisWeekend=sat.toISOString().slice(0,10);
+
+  function drawChips(){
+    const w=$('#weekends');w.innerHTML='';
+    weeks.forEach((k,i)=>{
+      const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(weekend===k.key));
+      b.innerHTML=esc(k.key===thisWeekend?'This weekend':k.label)+'<b>'+k.count+'</b>';
+      b.title=k.label;
+      b.onclick=()=>{weekend=k.key;drawChips();show()};
+      w.appendChild(b)});
+    const all=document.createElement('button');all.type='button';all.setAttribute('aria-pressed',String(weekend===null));
+    all.textContent='Any day';
+    all.onclick=()=>{weekend=null;drawChips();show()};
+    w.appendChild(all);
+    const r=$('#radius');r.innerHTML='';
+    KM.forEach(v=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(km===v));
+      b.textContent=v+' km';
+      b.onclick=()=>{km=v;try{localStorage.setItem(RADIUS,v)}catch(e){}drawChips();show()};
+      r.appendChild(b)});
+  }
+
+  const stamp=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
+  function rowHTML(f){
+    const g=FCW.atGround(f.date,f.h.tz);
+    const mine=new Date(f.t).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const sameClock=new Date(f.t).toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})===g.time;
+    return `<li><a href="/grounds/#c${f.h.espn_id}">
+      <img src="${FCW.crest(f.h)}" alt="">
+      <span><span class="tie">${esc(f.h.name)} v ${esc(f.a?f.a.name:f.away)}</span>
+        <span class="at">${esc(f.venue||f.h.stadium)}, ${esc(f.h.city)} · ${esc(FCW.shortComp(f.comp||''))} · ${f.km<1?'under 1 km':(f.km<10?f.km.toFixed(1):Math.round(f.km))+' km'} away</span></span>
+      <span class="ko"><b>${esc(g.day)} ${esc(g.date)}, ${esc(g.time)}</b>
+        <span>${sameClock?'local time':esc(g.zone)+' at the ground · '+esc(mine)+' your time'}</span>
+        <span class="checked">checked ${esc(stamp(f.checked||fx.generated))}</span></span></a></li>`;
+  }
+  function show(){
+    const out=$('#out');
+    if(!origin){out.innerHTML='<p class="empty">Enter a city or a ground above, or use your location, and the clubs at home nearby will be listed here.</p>';return}
+    const found=FCW.near(fx,origin,km,weekend),CAP=60,list=found.slice(0,CAP);
+    const when=weekend?(weeks.find(w=>w.key===weekend)||{}).label:`the next ${fx.days} days`;
+    $('#sum').innerHTML=found.length
+      ? `<b>${found.length}</b> ${found.length===1?'club is':'clubs are'} at home within ${km} km of <b>${esc(label)}</b>, ${weekend?'on '+esc(when):'in '+esc(when)}.${found.length>CAP?` The first ${CAP} are listed.`:''}`
+      : `No club in the register is at home within ${km} km of <b>${esc(label)}</b> ${weekend?'that weekend':'in '+esc(when)}.`;
+    out.innerHTML=list.length?`<ul class="matches">${list.map(rowHTML).join('')}</ul>`
+      :`<p class="empty">Nothing within ${km} km. Try a wider radius, another weekend, or a different city.</p>`;
+    document.title=(found.length?found.length+' matches near ':'A match near ')+label+' · footballclub.wiki';
+  }
+  function setOrigin(o,name,slug){
+    origin={lat:o.lat,lon:o.lon};label=name;
+    try{history.replaceState(null,'',slug?'#'+slug:location.pathname)}catch(e){}
+    show();
+  }
+
+  // search over the register's cities and grounds
+  const q=$('#q'),res=$('#results');
+  q.addEventListener('input',()=>{
+    const hits=FCW.findPlaces(D,q.value);
+    if(!q.value.trim()){res.hidden=true;return}
+    res.innerHTML=hits.length?hits.map((p,i)=>`<li><a href="#${p.slug}" data-i="${i}">${esc(p.name)}<small>${esc(p.sub)}</small></a></li>`).join('')
+      :'<li class="none">No city or ground in the register matches that.</li>';
+    res.hidden=false;
+    res.querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();const p=hits[+a.dataset.i];
+      res.hidden=true;q.value=p.name;setOrigin(p,p.name+(p.kind==='ground'?'':', '+p.country),p.slug)});
+  });
+  q.addEventListener('keydown',e=>{if(e.key==='Escape'){res.hidden=true}
+    if(e.key==='Enter'){const h=FCW.findPlaces(D,q.value)[0];if(h){res.hidden=true;q.value=h.name;setOrigin(h,h.name+(h.kind==='ground'?'':', '+h.country),h.slug)}}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))res.hidden=true});
+
+  // the browser's own location: asked for only on the button, kept in the page and never put in the URL
+  $('#here').onclick=()=>{
+    if(!navigator.geolocation){$('#sum').textContent='This browser cannot share a location. Enter a city instead.';return}
+    const b=$('#here'),was=b.textContent;b.textContent='Locating…';b.disabled=true;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      b.textContent=was;b.disabled=false;q.value='';
+      setOrigin({lat:pos.coords.latitude,lon:pos.coords.longitude},'your location',null);
+    },err=>{b.textContent=was;b.disabled=false;
+      $('#sum').textContent=err.code===1?'Location permission was declined. Enter a city instead.':'Your location could not be read. Enter a city instead.';
+    },{timeout:10000,maximumAge:300000});
+  };
+
+  // a place in the address bar, so a result is a link someone can keep or share
+  function fromHash(){
+    const h=decodeURIComponent(location.hash.slice(1));
+    const p=h&&FCW.places(D).find(x=>x.slug===h);
+    if(p){q.value=p.name;setOrigin(p,p.name+(p.kind==='ground'?'':', '+p.country),p.slug)}
+    else if(!h&&origin){origin=null;q.value='';label='';show()}
+    else show();
+  }
+  addEventListener('hashchange',fromHash);
+  drawChips();
+  fromHash();
+  FCW.feedLine(D);
+})().catch(e=>{document.getElementById('out').innerHTML='<p class="empty">The fixtures didn’t load. Check your connection and reload the page.</p>';console.error(e)});
+FCW.registerSW();
+</script>
+</body>
+</html>
