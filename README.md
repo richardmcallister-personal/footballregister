@@ -20,6 +20,7 @@ public/            the site — deploy this folder as-is
   data/nations_live.json  national next matches/competitions + FIFA ranking (refreshed daily)
   data/nation_squads.json latest squads from Wikipedia, with club_id links into the club register
   data/h2h.json       head-to-head among FIFA members [P,W,D,L,GF,GA,last date,last score,tournament]
+  data/europe/<espn_id>.json  a club's continental record: ties by season, opponents, connected grounds
   data/worldcup2026.json  groups, bracket and results of the 2026 World Cup
   data/fixtures.json  every upcoming home fixture in the register (45 days), each with the time it
                       was last read from ESPN and, where ESPN has one, a resale listing; used by

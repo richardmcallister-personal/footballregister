@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Club · footballclub.wiki</title>
-<meta name="description" content="A club’s entry: honours, ground, manager, records, league position, next match and squad.">
+<meta name="description" content="A club’s entry: honours, ground, manager, records, league position, next match, squad and its record across borders.">
 <meta name="theme-color" content="#F8F6F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -43,6 +43,33 @@ table.ref.mini tr.sel td{font-weight:800}
   .cols{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:520px){.cols{grid-template-columns:1fr}}
+.abroad{margin-top:30px;border-top:3px solid var(--ink);padding-top:4px}
+.abroad h2.title2{font-family:var(--display);font-weight:700;font-size:34px;margin:8px 0 0}
+.abroad .lead{font-family:var(--body);font-size:17px;color:var(--mute);margin:6px 0 0;max-width:70ch;text-wrap:pretty}
+.abroad .grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:36px;margin-top:8px}
+.abroad .grid2>*{min-width:0}
+.abroad .plate{height:320px}
+.abroad .opps{list-style:none;margin:0;padding:0}
+.abroad .opps li{display:grid;grid-template-columns:26px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.abroad .opps img{width:26px;height:26px;object-fit:contain}
+.abroad .opps a{text-decoration:none;font-weight:600}.abroad .opps a:hover{text-decoration:underline}
+.abroad .opps .rec{font-variant-numeric:tabular-nums;color:var(--mute);font-size:13px;white-space:nowrap}
+.abroad .opps .n{font-weight:800;font-variant-numeric:tabular-nums}
+.abroad .opps small{color:var(--mute);font-weight:400;margin-left:6px}
+table.ref.tl td{white-space:normal}
+table.ref.tl td.sea{white-space:nowrap;font-weight:800}
+table.ref.tl td.ex{white-space:nowrap}
+table.ref.tl td.ex i{font-style:normal;font-weight:800;padding:2px 7px;border:1px solid var(--border);font-size:12px}
+table.ref.tl td.ex i.w{background:var(--up);color:var(--acc-ink);border-color:var(--up)}
+table.ref.tl td.ex i.f{border-color:var(--ink)}
+.ties{display:flex;flex-wrap:wrap;gap:4px 10px}
+.ties span{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;white-space:nowrap}
+.ties img{width:18px;height:18px;object-fit:contain}
+.ties a{text-decoration:none}.ties a:hover{text-decoration:underline}
+.ties b{font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums}
+.ties .l{color:var(--mute)}
+.abroad details{margin-top:8px}.abroad summary{cursor:pointer;font-size:13.5px;font-weight:700;min-height:40px;display:flex;align-items:center}
+@media (max-width:900px){.abroad .grid2{grid-template-columns:1fr;gap:24px}.abroad .plate{height:300px}}
 </style>
 </head>
 <body>
@@ -76,7 +103,7 @@ table.ref.mini tr.sel td{font-weight:800}
   const D=await FCW.load(['rosters','flags']);
   FCW.attachSearch(D,$('#q'),$('#results'));
   const idFrom=()=>(location.hash.match(/^#c(\d+)$/)||[])[1];
-  let c=null,squad=null;
+  let c=null,squad=null,abroad=null,map2=null;
 
   function excerpt(){
     const st=(D.live.standings[c.league]||[]);const me=st.find(r=>r.id===c.espn_id);if(!me)return '';
@@ -104,6 +131,53 @@ table.ref.mini tr.sel td{font-weight:800}
       ${tl.competitions&&tl.competitions.length?`<h2 class="sec">Competitions this season</h2><div class="comps">${tl.competitions.map(x=>`<span>${esc(FCW.shortComp(x))}</span>`).join('')}</div>`:''}
       ${excerpt()}`;
   }
+
+  // ---------- across borders: the club's record in continental competition, from the register's tie tables ----------
+  const RN={W:'Winners',F:'Final',SF:'Semi-finals',QF:'Quarter-finals',R16:'Round of 16',R32:'Round of 32',PO:'Play-off',LP:'League phase',GS:'Group stage',R3:'Third round',R2:'Second round',R1:'First round',Q:'Qualifying'};
+  const rn=x=>RN[x]||x||'';
+  function abroadHTML(){
+    const A=abroad;
+    if(!A)return `<section class="abroad"><h2 class="title2">Across borders</h2><p class="empty">No continental record for ${esc(c.name)} in the register yet.</p></section>`;
+    const seasons=A.seasons.length,ties=A.seasons.reduce((n,s)=>n+s.ties.length,0),first=A.seasons[0].s,last=A.seasons[A.seasons.length-1].s;
+    const nopp=new Set(A.seasons.flatMap(s=>s.ties.map(t=>t.id||t.opp))).size,ncty=A.countries.length;
+    const region=FCW.region(D,c.league),where=region==='eu'?'Europe':'continental competition';
+    const lead=`${esc(c.name)} have played ${seasons} season${seasons===1?'':'s'} in ${where} since ${esc(first)}: ${ties} ties against ${nopp} opponents from ${ncty} countries${A.register_only?'':', as recorded on Wikipedia'}.${A.register_only?' No tie-by-tie record is published for the club; these are the meetings recorded on other register clubs’ pages, so the list is partial.':''}`;
+    const comps=`<table class="ref mini"><thead><tr><th>Competition</th><th class="n">Seasons</th><th class="n">Ties</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th>Best</th></tr></thead><tbody>
+      ${A.comps.map(x=>`<tr><td>${esc(x.name)}</td><td class="n">${x.seasons}</td><td class="n">${x.ties}</td><td class="n b">${x.w}</td><td class="n">${x.d}</td><td class="n">${x.l}</td><td>${x.best==='W'?`<b>Winners${x.titles?' ×'+x.titles:''}</b>`:esc(rn(x.best))}</td></tr>`).join('')}
+      </tbody></table>`;
+    const opps=`<ul class="opps">${A.opponents.slice(0,10).map(o=>{const d=o.id&&D.byId[o.id];
+      return `<li>${d?`<img src="${FCW.crest(d)}" alt="">`:'<span></span>'}<span>${d?`<a href="/club/#c${d.espn_id}">${esc(d.name)}</a>`:esc(o.name)}<small>${esc(o.country||'')}</small></span><span class="rec">W${o.w} D${o.d} L${o.l} · last ${esc(o.last)}</span><span class="n">${o.ties}</span></li>`}).join('')}</ul>`;
+    const row=s=>`<tr><td class="sea">${esc(s.s)}</td><td>${esc(A.comps.find(x=>x.key===s.comp)?.name||s.comp)}</td><td class="ex"><i class="${s.exit==='W'?'w':s.exit==='F'?'f':''}">${esc(rn(s.exit))}</i></td><td><div class="ties">${s.ties.map(t=>{const d=t.id&&D.byId[t.id];
+      const sc=t.agg&&t.agg!==t.h?t.agg:(t.h&&t.a&&t.h!==t.a?t.h+', '+t.a:(t.h||t.a||t.agg||''));
+      return `<span class="${t.o==='L'?'l':''}" title="${esc(t.r||'')}${t.c?' · '+esc(t.c):''}">${d?`<img src="${FCW.crest(d)}" alt=""><a href="/club/#c${d.espn_id}">${esc(d.name)}</a>`:esc(t.opp)}${sc?`<b>${esc(sc)}</b>`:''}</span>`}).join('')}</div></td></tr>`;
+    const recent=A.seasons.slice(-8).reverse(),older=A.seasons.slice(0,-8).reverse();
+    const grounds=A.grounds.map(id=>D.byId[id]).filter(d=>d&&d.lat!=null);
+    return `<section class="abroad"><h2 class="title2">Across borders</h2><p class="lead">${lead}</p>
+      <div class="grid2">
+        <div><h2 class="sec">Record by competition</h2><div class="tw">${comps}</div>
+          <h2 class="sec">Most-faced opponents</h2>${opps}</div>
+        <div><h2 class="sec">Connected grounds</h2>
+          <section class="plate" aria-label="Grounds of opponents in the register"><div class="map" id="map2" role="region" aria-label="Map of the grounds of ${esc(c.name)}’s continental opponents"></div></section>
+          <p class="note">${grounds.length} of those opponents are in this register; their grounds are marked, ${esc(c.stadium||c.name)} ringed. Tap a crest to open that club.</p>
+          ${A.countries.length?`<h2 class="sec">Opponents by country</h2><div class="comps">${A.countries.slice(0,18).map(x=>`<span>${esc(x.c)} <b>${x.n}</b></span>`).join('')}</div>`:''}</div>
+      </div>
+      <h2 class="sec">Season by season</h2>
+      <div class="tw"><table class="ref tl"><thead><tr><th>Season</th><th>Competition</th><th>Reached</th><th>Ties (scores read ${esc(c.name)} first)</th></tr></thead><tbody>${recent.map(row).join('')}</tbody></table></div>
+      ${older.length?`<details><summary>Earlier seasons (${older.length})</summary><div class="tw"><table class="ref tl"><tbody>${older.map(row).join('')}</tbody></table></div></details>`:''}
+      <p class="note">${A.register_only?'Compiled from the European-record tables of other clubs in this register.':`Source: <a href="${esc(A.source)}" target="_blank" rel="noopener">Wikipedia</a>, with meetings recorded on other register clubs’ pages added where the club’s own table stops short.`}</p>
+    </section>`;
+  }
+  async function drawMap2(){
+    const el=document.getElementById('map2');if(!el||!window.maplibregl||!abroad)return;
+    if(map2){try{map2.remove()}catch(e){}map2=null}
+    const set=new Set(abroad.grounds);const list=D.clubs.filter(d=>d.lat!=null&&(set.has(d.espn_id)||d===c));
+    if(!list.length)return;
+    await FCW.loadCrests(list);
+    map2=FCW.makeMap('map2',{clubs:list,center:[c.lon,c.lat],zoom:3,scale:.85,labelsFrom:7,scaleBar:false,cooperative:true,
+      onClick:id=>{if(id!==c.espn_id)location.hash='c'+id},onReady:()=>map2.select(c.espn_id)});
+    const near=list.filter(d=>FCW.region(D,d.league)===FCW.region(D,c.league));const fitList=near.length>2?near:list;
+    map2.once('load',()=>{const b=new maplibregl.LngLatBounds();fitList.forEach(d=>b.extend([d.lon,d.lat]));map2.fitBounds(b,{padding:30,maxZoom:6,duration:0})});
+  }
   function draw(){
     const l=D.L[c.league];
     document.title=c.name+' · footballclub.wiki';
@@ -125,8 +199,9 @@ table.ref.mini tr.sel td{font-weight:800}
         </div>
       </div>
       <div id="sq">${squadHTML()}</div>
+      <div id="abroad">${abroadHTML()}</div>
     </article>`;
-    drawMap();
+    drawMap();drawMap2();
   }
   async function drawMap(){
     if(!window.maplibregl||c.lat==null)return;
@@ -138,9 +213,10 @@ table.ref.mini tr.sel td{font-weight:800}
   }
   function open(){
     c=D.byId[idFrom()]||D.clubs.find(x=>x.name==='Manchester United')||D.clubs[0];
-    squad=(D.rosters&&D.rosters[c.espn_id])||null;
+    squad=(D.rosters&&D.rosters[c.espn_id])||null;abroad=null;
     draw();scrollTo({top:0,behavior:'auto'});
     const me=c;
+    fetch('/data/europe/'+c.espn_id+'.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(a=>{if(me!==c)return;abroad=a;$('#abroad').innerHTML=abroadHTML();drawMap2()}).catch(()=>{});
     Promise.allSettled([FCW.refreshTeam(D,c.espn_id),FCW.refreshStandings(D,[c.league]),FCW.refreshRoster(D,c).then(p=>{if(p&&p.length>=(squad||[]).length*.6)squad=p})])
       .then(r=>{if(me!==c)return;FCW.feedLine(D);
         $('#live').innerHTML=liveHTML();$('#sq').innerHTML=squadHTML();

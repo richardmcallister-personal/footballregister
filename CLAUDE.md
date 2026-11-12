@@ -49,6 +49,12 @@ See README.md for the file layout and data model. This file covers how the site 
   (ESPN schedule by national-team id) and the FIFA ranking read from Wikipedia's
   `Module:SportsRankings/data/FIFA World Rankings` (updated there within a day of each FIFA release).
   Commit `nations_live.json` with the others in the workflow.
+- Club pages carry an "Across borders" section from `public/data/europe/<espn_id>.json` (369 clubs): season-by-season
+  continental ties, record by competition, most-faced opponents, opponents by country and a map of connected
+  grounds. Built by `scripts/europe/` (wikitable.py → extract.py → assemble.py) from the English Wikipedia
+  "<club> in European/international football" articles and club articles' European-record tables, fetched with
+  `scripts/wikifetch_mac.py`; clubs with no table of their own get the meetings recorded on other register clubs'
+  pages (`register_only`). Static research; rerun the three scripts to rebuild after a fetch.
 - National-team facts (`nations.json`: honours, coach, captain, records, grounds, coordinates), squads
   (`nation_squads.json`, latest call-up from Wikipedia with `club_id` where the club is in the register),
   `h2h.json` (all-time head-to-head among FIFA members, computed from the martj42 international results
